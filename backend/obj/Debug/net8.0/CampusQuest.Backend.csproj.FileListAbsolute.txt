@@ -1,0 +1,15 @@
+C:\Users\davil\OneDrive\Documentos\GitHub\Trabalho-de-POO\backend\bin\Debug\net8.0\CampusQuest.Backend.exe
+C:\Users\davil\OneDrive\Documentos\GitHub\Trabalho-de-POO\backend\bin\Debug\net8.0\CampusQuest.Backend.deps.json
+C:\Users\davil\OneDrive\Documentos\GitHub\Trabalho-de-POO\backend\bin\Debug\net8.0\CampusQuest.Backend.runtimeconfig.json
+C:\Users\davil\OneDrive\Documentos\GitHub\Trabalho-de-POO\backend\bin\Debug\net8.0\CampusQuest.Backend.dll
+C:\Users\davil\OneDrive\Documentos\GitHub\Trabalho-de-POO\backend\bin\Debug\net8.0\CampusQuest.Backend.pdb
+C:\Users\davil\OneDrive\Documentos\GitHub\Trabalho-de-POO\backend\obj\Debug\net8.0\CampusQuest.Backend.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\davil\OneDrive\Documentos\GitHub\Trabalho-de-POO\backend\obj\Debug\net8.0\CampusQuest.Backend.AssemblyInfoInputs.cache
+C:\Users\davil\OneDrive\Documentos\GitHub\Trabalho-de-POO\backend\obj\Debug\net8.0\CampusQuest.Backend.AssemblyInfo.cs
+C:\Users\davil\OneDrive\Documentos\GitHub\Trabalho-de-POO\backend\obj\Debug\net8.0\CampusQuest.Backend.csproj.CoreCompileInputs.cache
+C:\Users\davil\OneDrive\Documentos\GitHub\Trabalho-de-POO\backend\obj\Debug\net8.0\CampusQuest.Backend.sourcelink.json
+C:\Users\davil\OneDrive\Documentos\GitHub\Trabalho-de-POO\backend\obj\Debug\net8.0\CampusQuest.Backend.dll
+C:\Users\davil\OneDrive\Documentos\GitHub\Trabalho-de-POO\backend\obj\Debug\net8.0\refint\CampusQuest.Backend.dll
+C:\Users\davil\OneDrive\Documentos\GitHub\Trabalho-de-POO\backend\obj\Debug\net8.0\CampusQuest.Backend.pdb
+C:\Users\davil\OneDrive\Documentos\GitHub\Trabalho-de-POO\backend\obj\Debug\net8.0\CampusQuest.Backend.genruntimeconfig.cache
+C:\Users\davil\OneDrive\Documentos\GitHub\Trabalho-de-POO\backend\obj\Debug\net8.0\ref\CampusQuest.Backend.dll
