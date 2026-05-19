@@ -77,7 +77,7 @@ public class SistemaExame
                 {
                     if (habilidade != null)
                     {
-                        habilidade.Aplicar(aluno, contexto, chefe);
+                        habilidade.Aplicar(aluno, contexto);
                     }
                 }
             }
@@ -187,7 +187,7 @@ public class SistemaExame
 
         while (true)
         {
-            string entrada = Console.ReadLine();
+            string entrada = Console.ReadLine() ?? string.Empty;
             if (int.TryParse(entrada, out int valor))
             {
                 int indice = valor - 1;
