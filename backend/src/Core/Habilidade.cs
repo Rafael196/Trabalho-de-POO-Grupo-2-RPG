@@ -1,6 +1,5 @@
 using System;
 using CampusQuest.Exame;
-using CampusQuest.Materias;
 
 namespace CampusQuest.Core;
 
@@ -17,7 +16,7 @@ public class Habilidade
         Efeito = efeito;
     }
 
-    public void Aplicar(Aluno aluno, ContextoExame contexto, Materia chefe = null)
+    public void Aplicar(Aluno aluno, ContextoExame contexto)
     {
         if (aluno == null)
         {
@@ -32,20 +31,15 @@ public class Habilidade
         switch (Efeito)
         {
             case TipoEfeito.AumentaDano:
+                contexto.MultiplicadorAnulado = false;
                 break;
             case TipoEfeito.ReducaoDano:
+                contexto.DanoContinuo = false;
+                contexto.TurnosComDano = 0;
                 break;
             case TipoEfeito.DuploAtaque:
-                if (chefe == null)
-                {
-                    throw new ArgumentNullException(nameof(chefe));
-                }
-
-                double conhecimentoEfetivo = contexto.MultiplicadorAnulado ? 0 : aluno.Conhecimento;
-                double danoCalculado = 15 * (1 + conhecimentoEfetivo / 100.0);
-                int dano = (int)Math.Round(danoCalculado, MidpointRounding.AwayFromZero);
-                chefe.ReceberDano(dano);
-                chefe.ReceberDano(dano);
+                contexto.DanoContinuo = true;
+                contexto.TurnosComDano = Math.Max(contexto.TurnosComDano, 2);
                 break;
             default:
                 throw new InvalidOperationException("Tipo de efeito desconhecido.");
