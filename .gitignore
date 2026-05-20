@@ -1,0 +1,24 @@
+# Build results
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+*.sln.docstates
+
+# Local history for Visual Studio Code
+.history/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
