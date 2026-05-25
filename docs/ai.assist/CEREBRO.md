@@ -55,13 +55,13 @@ ULTIMA ATUALIZACAO : Maio/2026
 - [ ] `RepositorioJson.cs`
 
 #### Estados (padrão State)
-- [ ] `IEstadoJogo.cs`
-- [ ] `JogoContexto.cs`
-- [ ] `EstadoMenu.cs`
-- [ ] `EstadoExplorando.cs`
-- [ ] `EstadoExame.cs`
-- [ ] `EstadoGameOver.cs`
-- [ ] `EstadoVitoria.cs`
+- [x] `IEstadoJogo.cs`
+- [x] `JogoContexto.cs`
+- [x] `EstadoMenu.cs`
+- [x] `EstadoExplorando.cs`
+- [x] `EstadoExame.cs`
+- [x] `EstadoGameOver.cs`
+- [x] `EstadoVitoria.cs`
 
 #### Cenários
 - [ ] `Hall.cs`
