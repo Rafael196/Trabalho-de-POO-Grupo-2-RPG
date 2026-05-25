@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using CampusQuest.Core;
+using CampusQuest.Itens;
 using CampusQuest.Materias;
 using CampusQuest.Quiz;
+using CampusQuest.UI;
 
 namespace CampusQuest.Exame;
 
@@ -10,6 +12,12 @@ public class SistemaExame
 {
     private const int DanoBaseChefe = 20;
     private const int DanoBaseAluno = 15;
+    private readonly IConsoleIO io;
+
+    public SistemaExame(IConsoleIO? io = null)
+    {
+        this.io = io ?? new ConsoleIO();
+    }
 
     public ResultadoExame Executar(Aluno aluno, Materia chefe)
     {
@@ -24,12 +32,20 @@ public class SistemaExame
         }
 
         int conhecimentoNoInicio = aluno.Conhecimento;
+        int bonusCaderno = Caderno.ConsumirBonus(aluno);
+        int bonusLivro = LivroTecnico.ObterBonus(aluno, chefe.Nome ?? string.Empty);
+        int conhecimentoEfetivo = Math.Max(0, conhecimentoNoInicio + bonusCaderno + bonusLivro);
         List<Pergunta> perguntas = chefe.GetPerguntasExame() ?? new List<Pergunta>();
         int acertos = 0;
         int erros = 0;
         ContextoExame contexto = new ContextoExame();
 
-        AplicarAtaqueEspecialInicial(chefe, aluno, contexto);
+        io.WriteLine("=== Exame de Aproveitamento ===");
+        io.WriteLine($"Chefe: {chefe.Nome}");
+        io.WriteLine($"Conhecimento base: {conhecimentoNoInicio}");
+        MostrarBonusItens(bonusCaderno, bonusLivro, conhecimentoEfetivo);
+
+        AplicarAtaqueEspecialInicial(chefe, aluno, contexto, conhecimentoEfetivo);
 
         foreach (Pergunta pergunta in perguntas)
         {
@@ -48,22 +64,26 @@ public class SistemaExame
 
             if (indiceResposta == pergunta.IndiceCorreto)
             {
-                int danoAoChefe = CalcularDanoAoChefe(aluno, contexto);
+                int danoAoChefe = CalcularDanoAoChefe(conhecimentoEfetivo, contexto);
                 chefe.ReceberDano(danoAoChefe);
                 acertos++;
+                io.WriteLine($"Acerto! Dano ao chefe: {danoAoChefe} (Vida do chefe: {chefe.GetVidaAtual()}/{chefe.GetVidaMaxima()})");
             }
             else
             {
-                int danoAoAluno = CalcularDanoAoAluno(aluno, contexto, DanoBaseChefe);
+                int danoAoAluno = CalcularDanoAoAluno(conhecimentoEfetivo, contexto, DanoBaseChefe);
                 aluno.ReceberDano(danoAoAluno);
                 erros++;
+                io.WriteLine($"Erro. Dano ao aluno: {danoAoAluno} (Vida do aluno: {aluno.Vida}/{aluno.VidaMaxima})");
             }
 
             if (contexto.DanoContinuo && contexto.TurnosComDano > 0)
             {
-                int danoContinuo = CalcularDanoAoAluno(aluno, contexto, DanoBaseChefe);
+                int danoContinuo = CalcularDanoAoAluno(conhecimentoEfetivo, contexto, DanoBaseChefe);
                 aluno.ReceberDano(danoContinuo);
                 contexto.TurnosComDano--;
+
+                io.WriteLine($"Dano continuo aplicado: {danoContinuo} (Vida do aluno: {aluno.Vida}/{aluno.VidaMaxima})");
 
                 if (contexto.TurnosComDano <= 0)
                 {
@@ -77,6 +97,7 @@ public class SistemaExame
                 {
                     if (habilidade != null)
                     {
+                        io.WriteLine($"Habilidade ativada: {habilidade.Nome} - {habilidade.Descricao}");
                         habilidade.Aplicar(aluno, contexto);
                     }
                 }
@@ -86,6 +107,9 @@ public class SistemaExame
             {
                 contexto.MultiplicadorAnulado = false;
             }
+
+            io.WriteLine("Pressione Enter para continuar...");
+            io.ReadLine();
         }
 
         bool vitoria = chefe.EstaVencido();
@@ -95,7 +119,7 @@ public class SistemaExame
         if (vitoria)
         {
             int totalPerguntas = perguntas.Count;
-            float fatorConhecimento = 0.5f + (aluno.Conhecimento / 200.0f);
+            float fatorConhecimento = 0.5f + (conhecimentoEfetivo / 200.0f);
             float aproveitamento = totalPerguntas == 0
                 ? 0f
                 : (acertos / (float)totalPerguntas * 100f) * fatorConhecimento;
@@ -112,28 +136,33 @@ public class SistemaExame
             aluno.RegistrarAproveitamento(aluno.SemestreAtual, valor);
         }
 
+        MostrarResumoFinal(vitoria, acertos, erros, aproveitamentoFinal, bonusCoragemAplicado, aluno, chefe);
+
         return new ResultadoExame(vitoria, aproveitamentoFinal, bonusCoragemAplicado, acertos, erros);
     }
 
-    private void AplicarAtaqueEspecialInicial(Materia chefe, Aluno aluno, ContextoExame contexto)
+    private void AplicarAtaqueEspecialInicial(Materia chefe, Aluno aluno, ContextoExame contexto, int conhecimentoEfetivo)
     {
         if (chefe is IC)
         {
             contexto.DanoContinuo = true;
             contexto.TurnosComDano = 2;
+            io.WriteLine("Ataque especial: Loop Infinito (dano continuo por 2 turnos).");
             return;
         }
 
         if (chefe is AED)
         {
-            int dano = CalcularDanoAoAluno(aluno, contexto, DanoBaseChefe * 2.5);
+            int dano = CalcularDanoAoAluno(conhecimentoEfetivo, contexto, DanoBaseChefe * 2.5);
             aluno.ReceberDano(dano);
+            io.WriteLine($"Ataque especial: Stack Overflow (dano imediato {dano}).");
             return;
         }
 
         if (chefe is POO)
         {
             contexto.MultiplicadorAnulado = true;
+            io.WriteLine("Ataque especial: NullPointerException (multiplicador anulado neste turno).");
             return;
         }
 
@@ -141,29 +170,31 @@ public class SistemaExame
         {
             contexto.DanoContinuo = true;
             contexto.TurnosComDano = 2;
-            int dano = CalcularDanoAoAluno(aluno, contexto, DanoBaseChefe * 2.5);
+            int dano = CalcularDanoAoAluno(conhecimentoEfetivo, contexto, DanoBaseChefe * 2.5);
             aluno.ReceberDano(dano);
             contexto.MultiplicadorAnulado = true;
+            io.WriteLine("Ataque especial: Sintese Total (combo de efeitos)." );
+            io.WriteLine($"Dano imediato aplicado: {dano}.");
         }
     }
 
-    private int CalcularDanoAoChefe(Aluno aluno, ContextoExame contexto)
+    private int CalcularDanoAoChefe(int conhecimentoEfetivo, ContextoExame contexto)
     {
-        double conhecimentoEfetivo = contexto.MultiplicadorAnulado ? 0 : aluno.Conhecimento;
-        double dano = DanoBaseAluno * (1 + conhecimentoEfetivo / 100.0);
+        double conhecimentoBase = contexto.MultiplicadorAnulado ? 0 : conhecimentoEfetivo;
+        double dano = DanoBaseAluno * (1 + conhecimentoBase / 100.0);
         return (int)Math.Round(dano, MidpointRounding.AwayFromZero);
     }
 
-    private int CalcularDanoAoAluno(Aluno aluno, ContextoExame contexto, double danoBase)
+    private int CalcularDanoAoAluno(int conhecimentoEfetivo, ContextoExame contexto, double danoBase)
     {
-        double conhecimentoEfetivo = contexto.MultiplicadorAnulado ? 0 : aluno.Conhecimento;
-        double dano = Math.Max(1, danoBase * (1 - conhecimentoEfetivo / 100.0));
+        double conhecimentoBase = contexto.MultiplicadorAnulado ? 0 : conhecimentoEfetivo;
+        double dano = Math.Max(1, danoBase * (1 - conhecimentoBase / 100.0));
         return (int)Math.Round(dano, MidpointRounding.AwayFromZero);
     }
 
     private void ApresentarPergunta(Pergunta pergunta)
     {
-        Console.WriteLine(pergunta.Enunciado);
+        io.WriteLine(pergunta.Enunciado);
 
         if (pergunta.Alternativas == null)
         {
@@ -172,10 +203,10 @@ public class SistemaExame
 
         for (int i = 0; i < pergunta.Alternativas.Length; i++)
         {
-            Console.WriteLine($"{i + 1}. {pergunta.Alternativas[i]}");
+            io.WriteLine($"{i + 1}. {pergunta.Alternativas[i]}");
         }
 
-        Console.WriteLine("Escolha uma alternativa:");
+        io.WriteLine("Escolha uma alternativa:");
     }
 
     private int LerIndiceResposta(int totalAlternativas)
@@ -187,7 +218,7 @@ public class SistemaExame
 
         while (true)
         {
-            string entrada = Console.ReadLine() ?? string.Empty;
+            string entrada = io.ReadLine();
             if (int.TryParse(entrada, out int valor))
             {
                 int indice = valor - 1;
@@ -197,7 +228,52 @@ public class SistemaExame
                 }
             }
 
-            Console.WriteLine("Entrada invalida.");
+            io.WriteLine("Entrada invalida.");
+        }
+    }
+
+    private void MostrarBonusItens(int bonusCaderno, int bonusLivro, int conhecimentoEfetivo)
+    {
+        if (bonusCaderno > 0)
+        {
+            io.WriteLine($"Bonus do Caderno: +{bonusCaderno} Conhecimento (temporario)." );
+        }
+
+        if (bonusLivro > 0)
+        {
+            io.WriteLine($"Bonus do Livro Tecnico: +{bonusLivro} Conhecimento (materia)." );
+        }
+
+        if (bonusCaderno > 0 || bonusLivro > 0)
+        {
+            io.WriteLine($"Conhecimento efetivo no exame: {conhecimentoEfetivo}." );
+        }
+    }
+
+    private void MostrarResumoFinal(
+        bool vitoria,
+        int acertos,
+        int erros,
+        int aproveitamentoFinal,
+        bool bonusCoragemAplicado,
+        Aluno aluno,
+        Materia chefe)
+    {
+        io.WriteLine("=== Resumo do Exame ===");
+        io.WriteLine(vitoria ? "Resultado: Vitoria" : "Resultado: Derrota");
+        io.WriteLine($"Chefe: {chefe.Nome}");
+        io.WriteLine($"Acertos: {acertos}");
+        io.WriteLine($"Erros: {erros}");
+        io.WriteLine($"Vida final do aluno: {aluno.Vida}/{aluno.VidaMaxima}");
+        io.WriteLine($"Vida final do chefe: {chefe.GetVidaAtual()}/{chefe.GetVidaMaxima()}");
+
+        if (vitoria)
+        {
+            io.WriteLine($"Aproveitamento final: {aproveitamentoFinal}");
+            if (bonusCoragemAplicado)
+            {
+                io.WriteLine("Bonus de coragem aplicado.");
+            }
         }
     }
 }
