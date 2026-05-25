@@ -42,6 +42,7 @@ public class EstadoExame : IEstadoJogo
                 return;
             }
 
+            TentarDesbloquearHabilidade(contexto.AlunoAtivo, chefe);
             contexto.AlunoAtivo.AvancarSemestre();
             SalvarSePossivel(contexto);
             contexto.MudarEstado(new EstadoExplorando(io));
@@ -78,5 +79,21 @@ public class EstadoExame : IEstadoJogo
         {
             io.WriteLine("Falha ao salvar o jogo.");
         }
+    }
+
+    private void TentarDesbloquearHabilidade(Aluno aluno, Materia materia)
+    {
+        if (aluno == null || materia == null)
+        {
+            return;
+        }
+
+        Habilidade habilidade = HabilidadeCatalogo.ObterPorChefe(materia.Nome);
+        if (habilidade == null)
+        {
+            return;
+        }
+
+        aluno.AdicionarHabilidade(habilidade);
     }
 }

@@ -12,6 +12,7 @@ public class SistemaExame
 {
     private const int DanoBaseChefe = 20;
     private const int DanoBaseAluno = 15;
+    private static readonly Random Rng = new();
     private readonly IConsoleIO io;
 
     public SistemaExame(IConsoleIO? io = null)
@@ -31,6 +32,12 @@ public class SistemaExame
             throw new ArgumentNullException(nameof(chefe));
         }
 
+        int vidaRestaurada = aluno.VidaMaxima - aluno.Vida;
+        if (vidaRestaurada > 0)
+        {
+            aluno.RestaurarVida(vidaRestaurada);
+        }
+
         int conhecimentoNoInicio = aluno.Conhecimento;
         int bonusCaderno = Caderno.ConsumirBonus(aluno);
         int bonusLivro = LivroTecnico.ObterBonus(aluno, chefe.Nome ?? string.Empty);
@@ -38,6 +45,7 @@ public class SistemaExame
         List<Pergunta> perguntas = chefe.GetPerguntasExame() ?? new List<Pergunta>();
         int acertos = 0;
         int erros = 0;
+        bool colaUsadaNoExame = false;
         ContextoExame contexto = new ContextoExame();
 
         io.WriteLine("=== Exame de Aproveitamento ===");
@@ -59,27 +67,78 @@ public class SistemaExame
                 continue;
             }
 
-            ApresentarPergunta(pergunta);
-            int indiceResposta = LerIndiceResposta(pergunta.Alternativas?.Length ?? 0);
             bool respostaErrada = false;
+            bool usouItemNoTurno = false;
 
-            if (indiceResposta == pergunta.IndiceCorreto)
+            while (true)
             {
-                int danoAoChefe = CalcularDanoAoChefe(conhecimentoEfetivo, contexto);
-                chefe.ReceberDano(danoAoChefe);
-                acertos++;
-                io.WriteLine($"Acerto! Dano ao chefe: {danoAoChefe} (Vida do chefe: {chefe.GetVidaAtual()}/{chefe.GetVidaMaxima()})");
-            }
-            else
-            {
-                int danoAoAluno = CalcularDanoAoAluno(conhecimentoEfetivo, contexto, DanoBaseChefe);
-                aluno.ReceberDano(danoAoAluno);
-                erros++;
-                respostaErrada = true;
-                io.WriteLine($"Erro. Dano ao aluno: {danoAoAluno} (Vida do aluno: {aluno.Vida}/{aluno.VidaMaxima})");
+                bool colaDisponivel = PodeUsarCola(aluno, chefe, colaUsadaNoExame);
+                bool itensDisponiveis = TemItensUsaveis(aluno);
+
+                ApresentarPergunta(pergunta, itensDisponiveis, colaDisponivel);
+                int indiceResposta = LerIndiceResposta(pergunta.Alternativas?.Length ?? 0, itensDisponiveis, colaDisponivel);
+                if (indiceResposta == -2)
+                {
+                    bool usouItem = TentarUsarItem(aluno, chefe, ref conhecimentoEfetivo);
+                    if (usouItem)
+                    {
+                        io.WriteLine("Item usado. Proxima pergunta.");
+                        usouItemNoTurno = true;
+                        break;
+                    }
+
+                    io.WriteLine("Nenhum item usado.");
+                    continue;
+                }
+
+                if (indiceResposta == -3)
+                {
+                    if (!colaDisponivel)
+                    {
+                        io.WriteLine("Cola indisponivel.");
+                        continue;
+                    }
+
+                    bool aplicouCola = TentarAplicarCola(aluno);
+                    if (!aplicouCola)
+                    {
+                        io.WriteLine("Cola indisponivel.");
+                        continue;
+                    }
+
+                    colaUsadaNoExame = true;
+                    respostaErrada = ProcessarPerguntaComCola(pergunta, conhecimentoEfetivo, contexto, chefe, aluno, ref acertos, ref erros);
+                    break;
+                }
+
+                if (aluno.ColaAtiva)
+                {
+                    aluno.DesativarCola();
+                    int danoAoChefe = CalcularDanoAoChefe(conhecimentoEfetivo, contexto);
+                    chefe.ReceberDano(danoAoChefe);
+                    acertos++;
+                    io.WriteLine($"Cola usada! Dano ao chefe: {danoAoChefe} (Vida do chefe: {chefe.GetVidaAtual()}/{chefe.GetVidaMaxima()})");
+                }
+                else if (indiceResposta == pergunta.IndiceCorreto)
+                {
+                    int danoAoChefe = CalcularDanoAoChefe(conhecimentoEfetivo, contexto);
+                    chefe.ReceberDano(danoAoChefe);
+                    acertos++;
+                    io.WriteLine($"Acerto! Dano ao chefe: {danoAoChefe} (Vida do chefe: {chefe.GetVidaAtual()}/{chefe.GetVidaMaxima()})");
+                }
+                else
+                {
+                    int danoAoAluno = CalcularDanoAoAluno(conhecimentoEfetivo, contexto, DanoBaseChefe);
+                    aluno.ReceberDano(danoAoAluno);
+                    erros++;
+                    respostaErrada = true;
+                    io.WriteLine($"Erro. Dano ao aluno: {danoAoAluno} (Vida do aluno: {aluno.Vida}/{aluno.VidaMaxima})");
+                }
+
+                break;
             }
 
-            if (respostaErrada && contexto.DanoContinuo && contexto.TurnosComDano > 0)
+            if (!usouItemNoTurno && respostaErrada && contexto.DanoContinuo && contexto.TurnosComDano > 0)
             {
                 int danoContinuo = CalcularDanoAoAluno(conhecimentoEfetivo, contexto, DanoBaseChefe);
                 aluno.ReceberDano(danoContinuo);
@@ -93,7 +152,7 @@ public class SistemaExame
                 }
             }
 
-            if (aluno.Habilidades != null)
+            if (!usouItemNoTurno && aluno.Habilidades != null)
             {
                 foreach (Habilidade habilidade in aluno.Habilidades)
                 {
@@ -195,7 +254,7 @@ public class SistemaExame
         return (int)Math.Round(dano, MidpointRounding.AwayFromZero);
     }
 
-    private void ApresentarPergunta(Pergunta pergunta)
+    private void ApresentarPergunta(Pergunta pergunta, bool mostrarItens, bool mostrarCola)
     {
         io.WriteLine(pergunta.Enunciado);
 
@@ -209,10 +268,20 @@ public class SistemaExame
             io.WriteLine($"{i + 1}. {pergunta.Alternativas[i]}");
         }
 
+        if (mostrarItens)
+        {
+            io.WriteLine("0. Usar item");
+        }
+
+        if (mostrarCola)
+        {
+            io.WriteLine("C. Usar cola");
+        }
+
         io.WriteLine("Escolha uma alternativa:");
     }
 
-    private int LerIndiceResposta(int totalAlternativas)
+    private int LerIndiceResposta(int totalAlternativas, bool permitirItens, bool permitirCola)
     {
         if (totalAlternativas <= 0)
         {
@@ -222,6 +291,17 @@ public class SistemaExame
         while (true)
         {
             string entrada = io.ReadLine();
+            if (permitirItens && (string.Equals(entrada, "0", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(entrada, "U", StringComparison.OrdinalIgnoreCase)))
+            {
+                return -2;
+            }
+
+            if (permitirCola && string.Equals(entrada, "C", StringComparison.OrdinalIgnoreCase))
+            {
+                return -3;
+            }
+
             if (int.TryParse(entrada, out int valor))
             {
                 int indice = valor - 1;
@@ -233,6 +313,220 @@ public class SistemaExame
 
             io.WriteLine("Entrada invalida.");
         }
+    }
+
+    private bool TentarUsarItem(Aluno aluno, Materia chefe, ref int conhecimentoEfetivo)
+    {
+        if (aluno?.Inventario == null)
+        {
+            return false;
+        }
+
+        List<Core.Item> itens = FiltrarItensSemCola(aluno.Inventario.ListarItens());
+        if (itens.Count == 0)
+        {
+            io.WriteLine("Inventario vazio.");
+            return false;
+        }
+
+        io.WriteLine("Escolha um item para usar (0 para cancelar):");
+        for (int i = 0; i < itens.Count; i++)
+        {
+            io.WriteLine($"{i + 1}. {ObterNomeItem(itens[i])}");
+        }
+
+        string entrada = io.ReadLine();
+        if (!int.TryParse(entrada, out int escolha))
+        {
+            io.WriteLine("Entrada invalida.");
+            return false;
+        }
+
+        if (escolha == 0)
+        {
+            return false;
+        }
+
+        int indice = escolha - 1;
+        if (indice < 0 || indice >= itens.Count)
+        {
+            io.WriteLine("Opcao invalida.");
+            return false;
+        }
+
+        Core.Item item = itens[indice];
+        if (item is not Itens.Item itemDetalhe)
+        {
+            io.WriteLine("Item invalido.");
+            return false;
+        }
+
+        itemDetalhe.Usar(aluno);
+        aluno.Inventario.Remover(item);
+
+        if (itemDetalhe is Caderno)
+        {
+            conhecimentoEfetivo += Caderno.BonusConhecimento;
+            io.WriteLine($"Bonus de conhecimento aplicado: +{Caderno.BonusConhecimento}.");
+        }
+        else if (itemDetalhe is LivroTecnico livro)
+        {
+            if (string.Equals(livro.MateriaAlvo, chefe.Nome, StringComparison.OrdinalIgnoreCase))
+            {
+                conhecimentoEfetivo += LivroTecnico.BonusConhecimento;
+                io.WriteLine($"Bonus de conhecimento aplicado: +{LivroTecnico.BonusConhecimento}.");
+            }
+        }
+
+        io.WriteLine(itemDetalhe.GetDescricaoEfeito());
+        return true;
+    }
+
+    private bool ProcessarPerguntaComCola(
+        Pergunta pergunta,
+        int conhecimentoEfetivo,
+        ContextoExame contexto,
+        Materia chefe,
+        Aluno aluno,
+        ref int acertos,
+        ref int erros)
+    {
+        if (pergunta?.Alternativas == null || pergunta.Alternativas.Length == 0)
+        {
+            return false;
+        }
+
+        int[] opcoes = SelecionarAlternativasComCola(pergunta);
+        io.WriteLine(pergunta.Enunciado);
+        for (int i = 0; i < opcoes.Length; i++)
+        {
+            io.WriteLine($"{i + 1}. {pergunta.Alternativas[opcoes[i]]}");
+        }
+
+        io.WriteLine("Escolha uma alternativa:");
+        int escolha = LerIndiceRespostaCola();
+        if (escolha < 0 || escolha >= opcoes.Length)
+        {
+            io.WriteLine("Entrada invalida.");
+            return false;
+        }
+
+        int indiceOriginal = opcoes[escolha];
+        if (indiceOriginal == pergunta.IndiceCorreto)
+        {
+            int danoAoChefe = CalcularDanoAoChefe(conhecimentoEfetivo, contexto);
+            chefe.ReceberDano(danoAoChefe);
+            acertos++;
+            io.WriteLine($"Acerto! Dano ao chefe: {danoAoChefe} (Vida do chefe: {chefe.GetVidaAtual()}/{chefe.GetVidaMaxima()})");
+            return false;
+        }
+
+        int danoAoAluno = CalcularDanoAoAluno(conhecimentoEfetivo, contexto, DanoBaseChefe * 2);
+        aluno.ReceberDano(danoAoAluno);
+        erros++;
+        io.WriteLine($"Erro. Dano ao aluno (dobrado): {danoAoAluno} (Vida do aluno: {aluno.Vida}/{aluno.VidaMaxima})");
+        return true;
+    }
+
+    private int LerIndiceRespostaCola()
+    {
+        while (true)
+        {
+            string entrada = io.ReadLine();
+            if (int.TryParse(entrada, out int valor))
+            {
+                int indice = valor - 1;
+                if (indice >= 0 && indice < 2)
+                {
+                    return indice;
+                }
+            }
+
+            io.WriteLine("Entrada invalida.");
+        }
+    }
+
+    private int[] SelecionarAlternativasComCola(Pergunta pergunta)
+    {
+        int correta = pergunta.IndiceCorreto;
+        int total = pergunta.Alternativas.Length;
+        int errada;
+        do
+        {
+            errada = Rng.Next(0, total);
+        }
+        while (errada == correta);
+
+        return Rng.Next(0, 2) == 0
+            ? new[] { correta, errada }
+            : new[] { errada, correta };
+    }
+
+    private bool PodeUsarCola(Aluno aluno, Materia chefe, bool colaUsadaNoExame)
+    {
+        if (colaUsadaNoExame || chefe is TCC)
+        {
+            return false;
+        }
+
+        return aluno?.Inventario?.BuscarPorTipo<Cola>() != null;
+    }
+
+    private bool TentarAplicarCola(Aluno aluno)
+    {
+        if (aluno?.Inventario == null)
+        {
+            return false;
+        }
+
+        Core.Item cola = aluno.Inventario.BuscarPorTipo<Cola>();
+        if (cola == null)
+        {
+            return false;
+        }
+
+        aluno.Inventario.Remover(cola);
+        return true;
+    }
+
+    private bool TemItensUsaveis(Aluno aluno)
+    {
+        if (aluno?.Inventario == null)
+        {
+            return false;
+        }
+
+        List<Core.Item> itens = FiltrarItensSemCola(aluno.Inventario.ListarItens());
+        return itens.Count > 0;
+    }
+
+    private static List<Core.Item> FiltrarItensSemCola(List<Core.Item> itens)
+    {
+        List<Core.Item> resultado = new();
+        if (itens == null)
+        {
+            return resultado;
+        }
+
+        for (int i = 0; i < itens.Count; i++)
+        {
+            if (itens[i] is not Cola)
+            {
+                resultado.Add(itens[i]);
+            }
+        }
+
+        return resultado;
+    }
+
+    private static string ObterNomeItem(Core.Item item)
+    {
+        if (item is Itens.Item itemDetalhe && !string.IsNullOrWhiteSpace(itemDetalhe.Nome))
+        {
+            return itemDetalhe.Nome;
+        }
+
+        return item?.GetType().Name ?? "Item";
     }
 
     private void MostrarBonusItens(int bonusCaderno, int bonusLivro, int conhecimentoEfetivo)

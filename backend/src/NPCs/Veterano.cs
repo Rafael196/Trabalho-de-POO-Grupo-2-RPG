@@ -80,6 +80,11 @@ public class Veterano : NPC
         }
 
         ultimoSemestre = Math.Max(1, Math.Min(3, aluno.SemestreAtual));
+        if (aluno.SemestreAtual <= 3 && aluno.Inventario?.BuscarPorTipo<CampusQuest.Itens.Cola>() == null)
+        {
+            return new CampusQuest.Itens.Cola();
+        }
+
         return OfereceItem();
     }
 }

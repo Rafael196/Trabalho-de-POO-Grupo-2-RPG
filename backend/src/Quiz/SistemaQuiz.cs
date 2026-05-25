@@ -75,7 +75,20 @@ public class SistemaQuiz
         GameItem itemDropado = CriarItemPorFaixa(aproveitamento, semestreNormalizado);
         if (itemDropado != null)
         {
-            aluno.Inventario.Adicionar(itemDropado);
+            if (!aluno.PodeReceberItem(itemDropado))
+            {
+                io.WriteLine("Limite de itens do semestre atingido. Item nao adicionado.");
+                itemDropado = null;
+            }
+            else if (aluno.Inventario.Adicionar(itemDropado))
+            {
+                aluno.RegistrarItemRecebido(itemDropado);
+            }
+            else
+            {
+                io.WriteLine("Inventario cheio. Item nao adicionado.");
+                itemDropado = null;
+            }
         }
 
         return new ResultadoQuiz(aproveitamento, ganhoConhecimento, itemDropado);

@@ -33,7 +33,8 @@ public class EstadoExplorando : IEstadoJogo
         io.WriteLine("3) Ir para sala de exame (batalha)");
         io.WriteLine("4) Ir para sala da coordenacao (trancar semestre)");
         io.WriteLine("5) Ver status e inventario");
-        io.WriteLine("6) Voltar ao menu");
+        io.WriteLine("6) Usar item do inventario");
+        io.WriteLine("7) Voltar ao menu");
         io.Write("Opcao: ");
 
         string entrada = io.ReadLine();
@@ -63,6 +64,9 @@ public class EstadoExplorando : IEstadoJogo
                 MostrarStatus(contexto.AlunoAtivo);
                 break;
             case "6":
+                UsarItemInventario(contexto.AlunoAtivo);
+                break;
+            case "7":
                 contexto.MudarEstado(new EstadoMenu(io));
                 break;
             default:
@@ -95,8 +99,19 @@ public class EstadoExplorando : IEstadoJogo
             case "1":
             {
                 Core.Item item = veterano.SolicitarItem(aluno);
-                if (aluno.Inventario.Adicionar(item))
+                if (item == null)
                 {
+                    io.WriteLine("Nenhum item disponivel no momento.");
+                    break;
+                }
+
+                if (!aluno.PodeReceberItem(item))
+                {
+                    io.WriteLine("Limite de itens do semestre atingido. Item nao adicionado.");
+                }
+                else if (aluno.Inventario.Adicionar(item))
+                {
+                    aluno.RegistrarItemRecebido(item);
                     io.WriteLine($"Item recebido: {ObterNomeItem(item)}");
                 }
                 else
@@ -214,6 +229,64 @@ public class EstadoExplorando : IEstadoJogo
         {
             io.WriteLine($"- {ObterNomeItem(itens[i])}");
         }
+    }
+
+    private void UsarItemInventario(Aluno aluno)
+    {
+        if (aluno?.Inventario == null)
+        {
+            return;
+        }
+
+        var itens = aluno.Inventario.ListarItens();
+        if (itens.Count == 0)
+        {
+            io.WriteLine("Inventario vazio.");
+            return;
+        }
+
+        io.WriteLine("Escolha um item para usar (0 para cancelar):");
+        for (int i = 0; i < itens.Count; i++)
+        {
+            io.WriteLine($"{i + 1}. {ObterNomeItem(itens[i])}");
+        }
+
+        string entrada = io.ReadLine();
+        if (!int.TryParse(entrada, out int escolha))
+        {
+            io.WriteLine("Entrada invalida.");
+            return;
+        }
+
+        if (escolha == 0)
+        {
+            io.WriteLine("Uso de item cancelado.");
+            return;
+        }
+
+        int indice = escolha - 1;
+        if (indice < 0 || indice >= itens.Count)
+        {
+            io.WriteLine("Opcao invalida.");
+            return;
+        }
+
+        Core.Item item = itens[indice];
+        if (item is not CampusQuest.Itens.Item itemDetalhe)
+        {
+            io.WriteLine("Item invalido.");
+            return;
+        }
+
+        if (itemDetalhe is CampusQuest.Itens.Cola)
+        {
+            io.WriteLine("A cola so pode ser usada durante o exame.");
+            return;
+        }
+
+        itemDetalhe.Usar(aluno);
+        aluno.Inventario.Remover(item);
+        io.WriteLine(itemDetalhe.GetDescricaoEfeito());
     }
 
     private static string ObterNomeItem(Core.Item item)

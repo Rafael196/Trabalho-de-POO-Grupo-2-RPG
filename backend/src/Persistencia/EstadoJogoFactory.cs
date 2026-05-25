@@ -33,7 +33,10 @@ public static class EstadoJogoFactory
             SemestreAtual = aluno.SemestreAtual,
             Habilidades = MapearHabilidades(aluno.Habilidades),
             Aproveitamentos = (int[])(aluno.Aproveitamentos?.Clone() ?? Array.Empty<int>()),
-            Inventario = MapearInventario(aluno.Inventario)
+            Inventario = MapearInventario(aluno.Inventario),
+            CafesRecebidosSemestre = aluno.CafesRecebidosSemestre,
+            CadernosRecebidosSemestre = aluno.CadernosRecebidosSemestre,
+            LivrosRecebidosSemestre = aluno.LivrosRecebidosSemestre
         };
 
         return estado;
@@ -92,6 +95,13 @@ public static class EstadoJogoFactory
                 }
             }
         }
+
+        aluno.DefinirContagemItensSemestre(
+            dados.CafesRecebidosSemestre,
+            dados.CadernosRecebidosSemestre,
+            dados.LivrosRecebidosSemestre);
+
+        AplicarHabilidadesSalvas(aluno, dados.Habilidades);
     }
 
     private static void AjustarVida(Aluno aluno, int vidaAlvo)
@@ -138,6 +148,23 @@ public static class EstadoJogoFactory
         return resultado;
     }
 
+    private static void AplicarHabilidadesSalvas(Aluno aluno, List<string> habilidadesSalvas)
+    {
+        if (aluno == null || habilidadesSalvas == null)
+        {
+            return;
+        }
+
+        foreach (string nome in habilidadesSalvas)
+        {
+            Habilidade habilidade = HabilidadeCatalogo.ObterPorNome(nome);
+            if (habilidade != null)
+            {
+                aluno.AdicionarHabilidade(habilidade);
+            }
+        }
+    }
+
     private static List<ItemSalvo> MapearInventario(Inventario inventario)
     {
         List<ItemSalvo> resultado = new();
@@ -174,6 +201,7 @@ public static class EstadoJogoFactory
             nameof(Cafe) => new Cafe(),
             nameof(Caderno) => new Caderno(),
             nameof(LivroTecnico) => new LivroTecnico(item.MateriaAlvo ?? string.Empty),
+            nameof(Cola) => new Cola(),
             _ => null
         };
     }

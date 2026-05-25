@@ -1,9 +1,9 @@
 {
   "Versao": "1.0",
-  "DataSalvamento": "2026-05-25T00:41:08.0517311Z",
+  "DataSalvamento": "2026-05-25T01:36:20.7748129Z",
   "Aluno": {
     "Nome": "davi 1",
-    "VidaAtual": 60,
+    "VidaAtual": 0,
     "VidaMaxima": 100,
     "Conhecimento": 0,
     "SemestreAtual": 2,
@@ -13,11 +13,14 @@
       0,
       0
     ],
-    "Inventario": []
+    "Inventario": [],
+    "CafesRecebidosSemestre": 0,
+    "CadernosRecebidosSemestre": 0,
+    "LivrosRecebidosSemestre": 0
   },
   "Estatisticas": null,
   "NomeAluno": "davi 1",
-  "VidaAtual": 60,
+  "VidaAtual": 0,
   "Conhecimento": 0,
   "SemestreAtual": 2
 }

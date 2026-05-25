@@ -26,6 +26,9 @@ public class DadosAluno
     public List<string> Habilidades { get; set; }
     public int[] Aproveitamentos { get; set; }
     public List<ItemSalvo> Inventario { get; set; }
+    public int CafesRecebidosSemestre { get; set; }
+    public int CadernosRecebidosSemestre { get; set; }
+    public int LivrosRecebidosSemestre { get; set; }
 }
 
 public class Estatisticas
