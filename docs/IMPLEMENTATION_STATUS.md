@@ -11,7 +11,7 @@ Resumo do que está implementado no backend e o que falta, mapeado contra os Req
 - **RF07 — TCC (boss final)**: Implementado — `TCC` escala com media final.
 - **RF08 — Habilidades**: Parcial — `Habilidade` aplicada no exame; desbloqueio ainda depende do fluxo do jogo.
 - **RF09 — Inventário**: Parcial — inventario e itens existem; uso completo fora do exame ainda pendente.
-- **RF10 — Save e Load (JSON)**: Não implementado — existe stub em memoria.
+- **RF10 — Save e Load (JSON)**: Implementado — `RepositorioJson` grava em `backend/saves/slot1.json`.
 - **RF11 — Boss Final: fluxo completo**: Implementado — `TCC` acessivel apos 3 semestres via estados.
 
 Novidades recentes
@@ -21,7 +21,7 @@ Novidades recentes
 - Exame com logs de dano, ataques especiais, efeitos de itens e resumo final.
 
 Pontos de atencao
-- Persistencia real (JSON) ainda pendente.
+- Persistencia JSON usa arquivo local; persistencia em BD fica para etapa futura.
 - Fluxo de uso de itens fora do exame ainda limitado.
 
 

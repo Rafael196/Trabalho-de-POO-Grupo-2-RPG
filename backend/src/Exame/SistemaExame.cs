@@ -61,6 +61,7 @@ public class SistemaExame
 
             ApresentarPergunta(pergunta);
             int indiceResposta = LerIndiceResposta(pergunta.Alternativas?.Length ?? 0);
+            bool respostaErrada = false;
 
             if (indiceResposta == pergunta.IndiceCorreto)
             {
@@ -74,10 +75,11 @@ public class SistemaExame
                 int danoAoAluno = CalcularDanoAoAluno(conhecimentoEfetivo, contexto, DanoBaseChefe);
                 aluno.ReceberDano(danoAoAluno);
                 erros++;
+                respostaErrada = true;
                 io.WriteLine($"Erro. Dano ao aluno: {danoAoAluno} (Vida do aluno: {aluno.Vida}/{aluno.VidaMaxima})");
             }
 
-            if (contexto.DanoContinuo && contexto.TurnosComDano > 0)
+            if (respostaErrada && contexto.DanoContinuo && contexto.TurnosComDano > 0)
             {
                 int danoContinuo = CalcularDanoAoAluno(conhecimentoEfetivo, contexto, DanoBaseChefe);
                 aluno.ReceberDano(danoContinuo);
@@ -147,7 +149,7 @@ public class SistemaExame
         {
             contexto.DanoContinuo = true;
             contexto.TurnosComDano = 2;
-            io.WriteLine("Ataque especial: Loop Infinito (dano continuo por 2 turnos).");
+            io.WriteLine("Ataque especial: Loop Infinito (dano continuo ao errar por 2 turnos).");
             return;
         }
 
@@ -162,7 +164,7 @@ public class SistemaExame
         if (chefe is POO)
         {
             contexto.MultiplicadorAnulado = true;
-            io.WriteLine("Ataque especial: NullPointerException (multiplicador anulado neste turno).");
+            io.WriteLine("Ataque especial: NullPointerException (multiplicador anulado no proximo ataque).");
             return;
         }
 
@@ -175,6 +177,7 @@ public class SistemaExame
             contexto.MultiplicadorAnulado = true;
             io.WriteLine("Ataque especial: Sintese Total (combo de efeitos)." );
             io.WriteLine($"Dano imediato aplicado: {dano}.");
+            io.WriteLine("Dano continuo ao errar por 2 turnos e multiplicador anulado no proximo ataque.");
         }
     }
 

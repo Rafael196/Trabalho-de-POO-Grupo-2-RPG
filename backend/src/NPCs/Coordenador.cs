@@ -52,14 +52,7 @@ public class Coordenador : NPC
 
         try
         {
-            EstadoJogo estado = new EstadoJogo
-            {
-                NomeAluno = aluno.Nome ?? string.Empty,
-                VidaAtual = aluno.Vida,
-                Conhecimento = aluno.Conhecimento,
-                SemestreAtual = aluno.SemestreAtual
-            };
-
+            EstadoJogo estado = EstadoJogoFactory.Criar(aluno);
             repositorioEfetivo.Salvar(estado);
             dialogoAtual = "Semestre trancado com sucesso.";
             return true;

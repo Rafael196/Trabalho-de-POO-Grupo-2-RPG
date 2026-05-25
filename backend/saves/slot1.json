@@ -1,0 +1,23 @@
+{
+  "Versao": "1.0",
+  "DataSalvamento": "2026-05-25T00:41:08.0517311Z",
+  "Aluno": {
+    "Nome": "davi 1",
+    "VidaAtual": 60,
+    "VidaMaxima": 100,
+    "Conhecimento": 0,
+    "SemestreAtual": 2,
+    "Habilidades": [],
+    "Aproveitamentos": [
+      54,
+      0,
+      0
+    ],
+    "Inventario": []
+  },
+  "Estatisticas": null,
+  "NomeAluno": "davi 1",
+  "VidaAtual": 60,
+  "Conhecimento": 0,
+  "SemestreAtual": 2
+}

@@ -38,6 +38,7 @@ public class EstadoMenu : IEstadoJogo
                 CarregarJogo(contexto);
                 break;
             case "3":
+                SalvarSePossivel(contexto);
                 contexto.MudarEstado(new EstadoSair());
                 break;
             default:
@@ -63,9 +64,10 @@ public class EstadoMenu : IEstadoJogo
         }
 
         EstadoJogo estado = contexto.Repositorio.Carregar();
-        if (!string.IsNullOrWhiteSpace(estado.NomeAluno))
+        string nomeResumo = estado.Aluno?.Nome ?? estado.NomeAluno;
+        if (!string.IsNullOrWhiteSpace(nomeResumo))
         {
-            io.WriteLine($"Save encontrado: {estado.NomeAluno}");
+            io.WriteLine($"Save encontrado: {nomeResumo}");
         }
         else
         {
@@ -74,25 +76,7 @@ public class EstadoMenu : IEstadoJogo
 
         Aluno aluno = new Aluno();
 
-        if (!string.IsNullOrWhiteSpace(estado.NomeAluno))
-        {
-            aluno.DefinirNome(estado.NomeAluno);
-        }
-
-        int conhecimento = Math.Max(0, estado.Conhecimento);
-        aluno.AumentarConhecimento(conhecimento);
-
-        int dano = Math.Max(0, aluno.Vida - estado.VidaAtual);
-        if (dano > 0)
-        {
-            aluno.ReceberDano(dano);
-        }
-
-        int semestreSalvo = Math.Max(1, Math.Min(3, estado.SemestreAtual));
-        while (aluno.SemestreAtual < semestreSalvo)
-        {
-            aluno.AvancarSemestre();
-        }
+        EstadoJogoFactory.Aplicar(aluno, estado);
 
         contexto.AlunoAtivo = aluno;
         contexto.MudarEstado(new EstadoExplorando(io));
@@ -103,5 +87,24 @@ public class EstadoMenu : IEstadoJogo
         io.Write("Nome do jogador: ");
         string nome = io.ReadLine();
         aluno.DefinirNome(nome);
+    }
+
+    private void SalvarSePossivel(JogoContexto contexto)
+    {
+        if (contexto?.Repositorio == null || contexto.AlunoAtivo == null)
+        {
+            return;
+        }
+
+        try
+        {
+            EstadoJogo estado = EstadoJogoFactory.Criar(contexto.AlunoAtivo);
+            contexto.Repositorio.Salvar(estado);
+            io.WriteLine("Jogo salvo.");
+        }
+        catch
+        {
+            io.WriteLine("Falha ao salvar o jogo.");
+        }
     }
 }

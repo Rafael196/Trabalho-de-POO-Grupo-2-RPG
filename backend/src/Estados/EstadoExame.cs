@@ -1,6 +1,7 @@
 using CampusQuest.Core;
 using CampusQuest.Exame;
 using CampusQuest.Materias;
+using CampusQuest.Persistencia;
 using CampusQuest.UI;
 
 namespace CampusQuest.Estados;
@@ -36,23 +37,46 @@ public class EstadoExame : IEstadoJogo
         {
             if (chefe is TCC)
             {
+                SalvarSePossivel(contexto);
                 contexto.MudarEstado(new EstadoVitoria(resultado, io));
                 return;
             }
 
             contexto.AlunoAtivo.AvancarSemestre();
+            SalvarSePossivel(contexto);
             contexto.MudarEstado(new EstadoExplorando(io));
             return;
         }
 
         if (chefe is TCC)
         {
+            SalvarSePossivel(contexto);
             contexto.MudarEstado(new EstadoGameOver(io));
             return;
         }
 
+        SalvarSePossivel(contexto);
         contexto.MudarEstado(new EstadoExplorando(io));
     }
 
     public void Sair(JogoContexto contexto) { }
+
+    private void SalvarSePossivel(JogoContexto contexto)
+    {
+        if (contexto?.Repositorio == null || contexto.AlunoAtivo == null)
+        {
+            return;
+        }
+
+        try
+        {
+            EstadoJogo estado = EstadoJogoFactory.Criar(contexto.AlunoAtivo);
+            contexto.Repositorio.Salvar(estado);
+            io.WriteLine("Jogo salvo.");
+        }
+        catch
+        {
+            io.WriteLine("Falha ao salvar o jogo.");
+        }
+    }
 }

@@ -1,3 +1,4 @@
+using System.IO;
 using CampusQuest.Estados;
 using CampusQuest.Eventos;
 using CampusQuest.Persistencia;
@@ -13,7 +14,7 @@ internal static class Program
         RegistrarObservadores(io);
         JogoContexto contexto = new JogoContexto(io)
         {
-            Repositorio = new StubRepositorio()
+            Repositorio = new RepositorioJson(Path.Combine("saves", "slot1.json"))
         };
 
         contexto.Iniciar();
