@@ -30,6 +30,12 @@ public class Coordenador : NPC
         dialogoAtual = "Informe o repositório para salvar o semestre.";
     }
 
+    public override string GetMensagemAbertura(Aluno aluno)
+    {
+        string nome = string.IsNullOrWhiteSpace(aluno?.Nome) ? "aluno" : aluno.Nome;
+        return $"Coordenador: Boa tarde, {nome}. Em que posso ajudar?";
+    }
+
     public bool TrancarSemestre(Aluno aluno, IRepositorio repo)
     {
         if (aluno == null)
@@ -48,7 +54,7 @@ public class Coordenador : NPC
         {
             EstadoJogo estado = new EstadoJogo
             {
-                NomeAluno = string.Empty,
+                NomeAluno = aluno.Nome ?? string.Empty,
                 VidaAtual = aluno.Vida,
                 Conhecimento = aluno.Conhecimento,
                 SemestreAtual = aluno.SemestreAtual
@@ -68,5 +74,20 @@ public class Coordenador : NPC
     public override string GetDialogo()
     {
         return dialogoAtual;
+    }
+
+    public override string ObterDica(Aluno aluno)
+    {
+        return "Coordenador: Se precisar de ajuda, faca um quiz com o professor e pegue itens com o veterano.";
+    }
+
+    public override Core.Item SolicitarItem(Aluno aluno)
+    {
+        return null;
+    }
+
+    public override string MensagemItemIndisponivel(Aluno aluno)
+    {
+        return "Coordenador: Itens sao com o veterano no Hall.";
     }
 }

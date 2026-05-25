@@ -2,17 +2,21 @@ using System;
 using CampusQuest.Core;
 using CampusQuest.Itens;
 using CampusQuest.Quiz;
+using CampusQuest.UI;
 
 namespace CampusQuest.NPCs;
 
 public class Professor : NPC
 {
-    private readonly SistemaQuiz sistemaQuiz = new();
+    private readonly SistemaQuiz sistemaQuiz;
+    private readonly IConsoleIO io;
     private string dialogoAtual = "Professor pronto para sugerir um quiz.";
 
-    public Professor()
+    public Professor(IConsoleIO? io = null)
     {
         Nome = "Professor";
+        this.io = io ?? new ConsoleIO();
+        sistemaQuiz = new SistemaQuiz(this.io);
     }
 
     public override void Interagir(Aluno aluno)
@@ -34,10 +38,16 @@ public class Professor : NPC
         dialogoAtual = $"Quiz concluído com aproveitamento {resultado.Aproveitamento}.";
     }
 
+    public override string GetMensagemAbertura(Aluno aluno)
+    {
+        string nome = string.IsNullOrWhiteSpace(aluno?.Nome) ? "aluno" : aluno.Nome;
+        return $"Professor: Ola, {nome}. Pronto para um quiz?";
+    }
+
     public bool SugerirQuiz()
     {
-        Console.WriteLine("O professor sugere um quiz de reforço. Aceitar? (s/n)");
-        string resposta = Console.ReadLine();
+        io.WriteLine("O professor sugere um quiz de reforco. Aceitar? (s/n)");
+        string resposta = io.ReadLine();
         return !string.IsNullOrWhiteSpace(resposta) && resposta.Trim().Equals("s", StringComparison.OrdinalIgnoreCase);
     }
 
@@ -46,15 +56,15 @@ public class Professor : NPC
         int semestreMinimo = Math.Max(1, Math.Min(3, semestreAtual));
         while (true)
         {
-            Console.WriteLine($"Escolha o semestre do quiz (1-3). Atual sugerido: {semestreMinimo}");
-            string entrada = Console.ReadLine();
+            io.WriteLine($"Escolha o semestre do quiz (1-3). Atual sugerido: {semestreMinimo}");
+            string entrada = io.ReadLine();
 
             if (int.TryParse(entrada, out int semestre) && semestre >= 1 && semestre <= 3)
             {
                 return semestre;
             }
 
-            Console.WriteLine("Entrada inválida.");
+            io.WriteLine("Entrada invalida.");
         }
     }
 
@@ -71,5 +81,31 @@ public class Professor : NPC
     public override string GetDialogo()
     {
         return dialogoAtual;
+    }
+
+    public override string ObterDica(Aluno aluno)
+    {
+        if (aluno == null)
+        {
+            return "Professor: Procure o veterano no Hall para obter itens uteis.";
+        }
+
+        return aluno.SemestreAtual switch
+        {
+            1 => "Professor: No Hall, o veterano pode te dar Cafe para recuperar vida.",
+            2 => "Professor: O veterano pode entregar um Caderno para um bonus temporario.",
+            3 => "Professor: O veterano pode entregar um Livro Tecnico para reforcar a materia.",
+            _ => "Professor: Procure o veterano no Hall para obter itens uteis."
+        };
+    }
+
+    public override Core.Item SolicitarItem(Aluno aluno)
+    {
+        return null;
+    }
+
+    public override string MensagemItemIndisponivel(Aluno aluno)
+    {
+        return "Professor: Eu nao distribuo itens. Fale com o veterano no Hall.";
     }
 }

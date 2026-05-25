@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using CampusQuest.Eventos;
 
 namespace CampusQuest.Core;
 
 public class Aluno : Personagem
 {
+    public string Nome { get; private set; }
     public Inventario Inventario { get; private set; }
     public List<Habilidade> Habilidades { get; private set; }
     public int SemestreAtual { get; private set; }
@@ -13,6 +15,7 @@ public class Aluno : Personagem
 
     public Aluno()
     {
+        Nome = string.Empty;
         Inventario = new Inventario();
         Habilidades = new List<Habilidade>();
         SemestreAtual = 1;
@@ -21,6 +24,11 @@ public class Aluno : Personagem
         vidaMaxima = 100;
         vida = vidaMaxima;
         conhecimento = 0;
+    }
+
+    public void DefinirNome(string nome)
+    {
+        Nome = string.IsNullOrWhiteSpace(nome) ? "Jogador" : nome.Trim();
     }
 
     public override void Atacar(Personagem alvo)
@@ -43,6 +51,7 @@ public class Aluno : Personagem
         }
 
         Habilidades.Add(h);
+        EventoBus.Publicar(new HabilidadeDesbloqueadaEvento(h));
     }
 
     public void RegistrarAproveitamento(int semestre, int valor)

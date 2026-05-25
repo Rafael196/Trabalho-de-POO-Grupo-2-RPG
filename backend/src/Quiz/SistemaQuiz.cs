@@ -5,13 +5,21 @@ using GameItem = CampusQuest.Itens.Item;
 
 using CampusQuest.Core;
 using CampusQuest.Itens;
+using CampusQuest.UI;
 
 namespace CampusQuest.Quiz;
 
 public class SistemaQuiz
 {
     private const int GanhoBaseConhecimento = 10;
-    private static readonly Dictionary<int, List<Pergunta>> BancoPerguntas = CriarBancoPerguntas();
+    private static readonly Dictionary<int, Pergunta[]> BancoPerguntas = CriarBancoPerguntas();
+    private static readonly Random Rng = new();
+    private readonly IConsoleIO io;
+
+    public SistemaQuiz(IConsoleIO? io = null)
+    {
+        this.io = io ?? new ConsoleIO();
+    }
 
     public ResultadoQuiz Executar(Aluno aluno, int semestre)
     {
@@ -21,40 +29,40 @@ public class SistemaQuiz
         }
 
         int semestreNormalizado = Math.Max(1, Math.Min(3, semestre));
-        List<Pergunta> perguntas = BancoPerguntas[semestreNormalizado];
+        Pergunta[] perguntas = ObterPerguntasAleatorias(semestreNormalizado);
         int acertos = 0;
 
-        Console.WriteLine($"Quiz do semestre {semestreNormalizado}");
+        io.WriteLine($"Quiz do semestre {semestreNormalizado}");
 
-        for (int i = 0; i < perguntas.Count; i++)
+        for (int i = 0; i < perguntas.Length; i++)
         {
             Pergunta pergunta = perguntas[i];
-            Console.WriteLine(pergunta.Enunciado);
+            io.WriteLine(pergunta.Enunciado);
 
             for (int opcao = 0; opcao < pergunta.Alternativas.Length; opcao++)
             {
-                Console.WriteLine($"{opcao + 1}. {pergunta.Alternativas[opcao]}");
+                io.WriteLine($"{opcao + 1}. {pergunta.Alternativas[opcao]}");
             }
 
-            Console.Write("Resposta: ");
-            string entrada = Console.ReadLine();
+            io.Write("Resposta: ");
+            string entrada = io.ReadLine();
             int indiceEscolhido = int.TryParse(entrada, out int valor) ? valor - 1 : -1;
 
             if (pergunta.VerificarResposta(indiceEscolhido))
             {
                 acertos++;
-                Console.WriteLine("Correto.");
+                io.WriteLine("Correto.");
             }
             else
             {
-                Console.WriteLine("Errado.");
-                Console.WriteLine(pergunta.Explicacao);
+                io.WriteLine("Errado.");
+                io.WriteLine(pergunta.Explicacao);
             }
 
-            Console.WriteLine();
+            io.WriteLine(string.Empty);
         }
 
-        int totalPerguntas = perguntas.Count;
+        int totalPerguntas = perguntas.Length;
         int aproveitamento = totalPerguntas == 0
             ? 0
             : (int)Math.Round(acertos / (double)totalPerguntas * 100.0, MidpointRounding.AwayFromZero);
@@ -99,11 +107,11 @@ public class SistemaQuiz
         };
     }
 
-    private static Dictionary<int, List<Pergunta>> CriarBancoPerguntas()
+    private static Dictionary<int, Pergunta[]> CriarBancoPerguntas()
     {
-        return new Dictionary<int, List<Pergunta>>
+        return new Dictionary<int, Pergunta[]>
         {
-            [1] = new List<Pergunta>
+            [1] = new[]
             {
                 new Pergunta("O que é hardware?", new[] { "Parte física", "Programa", "Rede", "Arquivo" }, 0, "Hardware é a parte física.") ,
                 new Pergunta("O que é software?", new[] { "Programa", "Placa", "Teclado", "Memória" }, 0, "Software é o conjunto de programas."),
@@ -111,7 +119,7 @@ public class SistemaQuiz
                 new Pergunta("Qual número representa binário?", new[] { "0 e 1", "2 e 3", "5 e 6", "8 e 9" }, 0, "Binário usa 0 e 1."),
                 new Pergunta("Qual dispositivo conecta redes?", new[] { "Roteador", "Mouse", "Monitor", "Teclado" }, 0, "Roteador conecta redes diferentes.")
             },
-            [2] = new List<Pergunta>
+            [2] = new[]
             {
                 new Pergunta("Pilha segue qual regra?", new[] { "LIFO", "FIFO", "ABC", "XYZ" }, 0, "Pilha é LIFO."),
                 new Pergunta("Fila segue qual regra?", new[] { "FIFO", "LIFO", "DFS", "BFS" }, 0, "Fila é FIFO."),
@@ -119,7 +127,7 @@ public class SistemaQuiz
                 new Pergunta("Complexidade O(n) indica crescimento:", new[] { "Linear", "Constante", "Quadrático", "Logarítmico" }, 0, "O(n) é linear."),
                 new Pergunta("Qual estrutura combina recursão?", new[] { "Pilha", "Fila", "Lista", "Matriz" }, 0, "Recursão usa pilha de execução.")
             },
-            [3] = new List<Pergunta>
+            [3] = new[]
             {
                 new Pergunta("Encapsulamento controla:", new[] { "Acesso aos dados", "Rede", "Compilação", "Memória" }, 0, "Encapsulamento controla acesso."),
                 new Pergunta("Herança permite:", new[] { "Reuso", "Apagar dados", "Acelerar CPU", "Criar rede" }, 0, "Herança promove reuso."),
@@ -129,18 +137,21 @@ public class SistemaQuiz
             }
         };
     }
-}
 
-public class ResultadoQuiz
-{
-    public int Aproveitamento { get; }
-    public int GanhoConhecimento { get; }
-    public GameItem ItemDropado { get; }
-
-    public ResultadoQuiz(int aproveitamento, int ganhoConhecimento, GameItem itemDropado)
+    private static Pergunta[] ObterPerguntasAleatorias(int semestre)
     {
-        Aproveitamento = aproveitamento;
-        GanhoConhecimento = ganhoConhecimento;
-        ItemDropado = itemDropado;
+        if (!BancoPerguntas.TryGetValue(semestre, out Pergunta[] perguntasBase))
+        {
+            return Array.Empty<Pergunta>();
+        }
+
+        Pergunta[] copia = (Pergunta[])perguntasBase.Clone();
+        for (int i = copia.Length - 1; i > 0; i--)
+        {
+            int j = Rng.Next(i + 1);
+            (copia[i], copia[j]) = (copia[j], copia[i]);
+        }
+
+        return copia;
     }
 }

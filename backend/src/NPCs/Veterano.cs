@@ -26,6 +26,12 @@ public class Veterano : NPC
         dialogoAtual = DarDica(ultimoSemestre);
     }
 
+    public override string GetMensagemAbertura(Aluno aluno)
+    {
+        string nome = string.IsNullOrWhiteSpace(aluno?.Nome) ? "calouro" : aluno.Nome;
+        return $"Veterano: E ai, {nome}! Precisa de uma dica?";
+    }
+
     public string DarDica(int semestreAtual)
     {
         ultimoSemestre = Math.Max(1, Math.Min(3, semestreAtual));
@@ -53,5 +59,27 @@ public class Veterano : NPC
     public override string GetDialogo()
     {
         return dialogoAtual;
+    }
+
+    public override string ObterDica(Aluno aluno)
+    {
+        if (aluno == null)
+        {
+            return "Mantenha o ritmo de estudos e prepare-se para o proximo desafio.";
+        }
+
+        ultimoSemestre = Math.Max(1, Math.Min(3, aluno.SemestreAtual));
+        return DarDica(ultimoSemestre);
+    }
+
+    public override Core.Item SolicitarItem(Aluno aluno)
+    {
+        if (aluno == null)
+        {
+            return null;
+        }
+
+        ultimoSemestre = Math.Max(1, Math.Min(3, aluno.SemestreAtual));
+        return OfereceItem();
     }
 }

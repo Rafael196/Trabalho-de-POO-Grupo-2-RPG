@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CampusQuest.Eventos;
 
 namespace CampusQuest.Core;
 
@@ -18,6 +19,7 @@ public class Inventario
         }
 
         itens.Add(item);
+        EventoBus.Publicar(new ItemAdquiridoEvento(item));
         return true;
     }
 
