@@ -10,11 +10,13 @@ public class EstadoExame : IEstadoJogo
 {
     private readonly Materia chefe;
     private readonly IConsoleIO io;
+    private readonly IRepositorioQuestoes repositorioQuestoes;
 
-    public EstadoExame(Materia chefe, IConsoleIO? io = null)
+    public EstadoExame(Materia chefe, IConsoleIO? io = null, IRepositorioQuestoes repositorioQuestoes = null)
     {
         this.chefe = chefe;
         this.io = io ?? new ConsoleIO();
+        this.repositorioQuestoes = repositorioQuestoes;
     }
 
     public void Entrar(JogoContexto contexto)
@@ -30,56 +32,43 @@ public class EstadoExame : IEstadoJogo
             return;
         }
 
-        SistemaExame sistema = new SistemaExame(io);
+        SistemaExame sistema = new SistemaExame(io, repositorioQuestoes);
         ResultadoExame resultado = sistema.Executar(contexto.AlunoAtivo, chefe);
 
         if (resultado.Vitoria)
         {
+            if (resultado.BonusCoragemAplicado)
+            {
+                contexto.AlunoAtivo.RegistrarBonusCoragemAplicado();
+            }
+
             if (chefe is TCC)
             {
-                SalvarSePossivel(contexto);
+                contexto.SalvarProgresso(exibirMensagem: true);
                 contexto.MudarEstado(new EstadoVitoria(resultado, io));
                 return;
             }
 
             TentarDesbloquearHabilidade(contexto.AlunoAtivo, chefe);
             contexto.AlunoAtivo.AvancarSemestre();
-            SalvarSePossivel(contexto);
+            contexto.SalvarProgresso(exibirMensagem: true);
             contexto.MudarEstado(new EstadoExplorando(io));
             return;
         }
 
         if (chefe is TCC)
         {
-            SalvarSePossivel(contexto);
+            contexto.SalvarProgresso(exibirMensagem: true);
             contexto.MudarEstado(new EstadoGameOver(io));
             return;
         }
 
-        SalvarSePossivel(contexto);
+        contexto.AlunoAtivo.RegistrarSemestreRepetido();
+        contexto.SalvarProgresso(exibirMensagem: true);
         contexto.MudarEstado(new EstadoExplorando(io));
     }
 
     public void Sair(JogoContexto contexto) { }
-
-    private void SalvarSePossivel(JogoContexto contexto)
-    {
-        if (contexto?.Repositorio == null || contexto.AlunoAtivo == null)
-        {
-            return;
-        }
-
-        try
-        {
-            EstadoJogo estado = EstadoJogoFactory.Criar(contexto.AlunoAtivo);
-            contexto.Repositorio.Salvar(estado);
-            io.WriteLine("Jogo salvo.");
-        }
-        catch
-        {
-            io.WriteLine("Falha ao salvar o jogo.");
-        }
-    }
 
     private void TentarDesbloquearHabilidade(Aluno aluno, Materia materia)
     {

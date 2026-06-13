@@ -1,6 +1,7 @@
 using System;
 using CampusQuest.Core;
 using CampusQuest.Itens;
+using CampusQuest.Persistencia;
 using CampusQuest.Quiz;
 using CampusQuest.UI;
 
@@ -12,11 +13,14 @@ public class Professor : NPC
     private readonly IConsoleIO io;
     private string dialogoAtual = "Professor pronto para sugerir um quiz.";
 
-    public Professor(IConsoleIO? io = null)
+    public Professor(IRepositorioQuestoes repositorioQuestoes, IConsoleIO? io = null)
     {
+        if (repositorioQuestoes == null)
+            throw new ArgumentNullException(nameof(repositorioQuestoes));
+
         Nome = "Professor";
         this.io = io ?? new ConsoleIO();
-        sistemaQuiz = new SistemaQuiz(this.io);
+        sistemaQuiz = new SistemaQuiz(repositorioQuestoes, this.io);
     }
 
     public override void Interagir(Aluno aluno)

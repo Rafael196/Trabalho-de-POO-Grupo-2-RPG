@@ -2,6 +2,7 @@ using System;
 using CampusQuest.Core;
 using CampusQuest.Materias;
 using CampusQuest.NPCs;
+using CampusQuest.Persistencia;
 using CampusQuest.UI;
 
 namespace CampusQuest.Estados;
@@ -45,13 +46,13 @@ public class EstadoExplorando : IEstadoJogo
                 break;
             case "2":
             {
-                InteragirProfessor(contexto.AlunoAtivo);
+                InteragirProfessor(contexto.AlunoAtivo, contexto.RepositorioQuestoes);
                 break;
             }
             case "3":
             {
                 Materia chefe = CriarChefe(contexto.AlunoAtivo);
-                contexto.MudarEstado(new EstadoExame(chefe, io));
+                contexto.MudarEstado(new EstadoExame(chefe, io, contexto.RepositorioQuestoes));
                 break;
             }
             case "4":
@@ -73,6 +74,8 @@ public class EstadoExplorando : IEstadoJogo
                 io.WriteLine("Opcao invalida.");
                 break;
         }
+
+        contexto.SalvarProgresso();
     }
 
     public void Sair(JogoContexto contexto) { }
@@ -130,14 +133,20 @@ public class EstadoExplorando : IEstadoJogo
         }
     }
 
-    private void InteragirProfessor(Aluno aluno)
+    private void InteragirProfessor(Aluno aluno, IRepositorioQuestoes repositorioQuestoes)
     {
         if (aluno == null)
         {
             return;
         }
 
-        Professor professor = new Professor(io);
+        if (repositorioQuestoes == null)
+        {
+            io.WriteLine("Erro: Repositorio de questoes nao configurado.");
+            return;
+        }
+
+        Professor professor = new Professor(repositorioQuestoes, io);
         io.WriteLine(professor.GetMensagemAbertura(aluno));
         io.WriteLine("1) Pedir item para a prova");
         io.WriteLine("2) Pedir dica de estudo");
@@ -286,6 +295,7 @@ public class EstadoExplorando : IEstadoJogo
 
         itemDetalhe.Usar(aluno);
         aluno.Inventario.Remover(item);
+        aluno.RegistrarItemUsado();
         io.WriteLine(itemDetalhe.GetDescricaoEfeito());
     }
 
