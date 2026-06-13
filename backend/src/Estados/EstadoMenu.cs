@@ -38,7 +38,7 @@ public class EstadoMenu : IEstadoJogo
                 CarregarJogo(contexto);
                 break;
             case "3":
-                SalvarSePossivel(contexto);
+                contexto.SalvarProgresso(exibirMensagem: true);
                 contexto.MudarEstado(new EstadoSair());
                 break;
             default:
@@ -87,24 +87,5 @@ public class EstadoMenu : IEstadoJogo
         io.Write("Nome do jogador: ");
         string nome = io.ReadLine();
         aluno.DefinirNome(nome);
-    }
-
-    private void SalvarSePossivel(JogoContexto contexto)
-    {
-        if (contexto?.Repositorio == null || contexto.AlunoAtivo == null)
-        {
-            return;
-        }
-
-        try
-        {
-            EstadoJogo estado = EstadoJogoFactory.Criar(contexto.AlunoAtivo);
-            contexto.Repositorio.Salvar(estado);
-            io.WriteLine("Jogo salvo.");
-        }
-        catch
-        {
-            io.WriteLine("Falha ao salvar o jogo.");
-        }
     }
 }

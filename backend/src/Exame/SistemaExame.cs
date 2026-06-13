@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CampusQuest.Core;
 using CampusQuest.Itens;
 using CampusQuest.Materias;
+using CampusQuest.Persistencia;
 using CampusQuest.Quiz;
 using CampusQuest.UI;
 
@@ -14,10 +16,12 @@ public class SistemaExame
     private const int DanoBaseAluno = 15;
     private static readonly Random Rng = new();
     private readonly IConsoleIO io;
+    private readonly IRepositorioQuestoes repositorioQuestoes;
 
-    public SistemaExame(IConsoleIO? io = null)
+    public SistemaExame(IConsoleIO? io = null, IRepositorioQuestoes repositorioQuestoes = null)
     {
         this.io = io ?? new ConsoleIO();
+        this.repositorioQuestoes = repositorioQuestoes;
     }
 
     public ResultadoExame Executar(Aluno aluno, Materia chefe)
@@ -42,7 +46,7 @@ public class SistemaExame
         int bonusCaderno = Caderno.ConsumirBonus(aluno);
         int bonusLivro = LivroTecnico.ObterBonus(aluno, chefe.Nome ?? string.Empty);
         int conhecimentoEfetivo = Math.Max(0, conhecimentoNoInicio + bonusCaderno + bonusLivro);
-        List<Pergunta> perguntas = chefe.GetPerguntasExame() ?? new List<Pergunta>();
+        List<Pergunta> perguntas = ObterPerguntasExame(chefe);
         int acertos = 0;
         int erros = 0;
         bool colaUsadaNoExame = false;
@@ -363,6 +367,7 @@ public class SistemaExame
 
         itemDetalhe.Usar(aluno);
         aluno.Inventario.Remover(item);
+        aluno.RegistrarItemUsado();
 
         if (itemDetalhe is Caderno)
         {
@@ -486,6 +491,7 @@ public class SistemaExame
         }
 
         aluno.Inventario.Remover(cola);
+        aluno.RegistrarItemUsado();
         return true;
     }
 
@@ -572,6 +578,24 @@ public class SistemaExame
                 io.WriteLine("Bonus de coragem aplicado.");
             }
         }
+    }
+
+    private List<Pergunta> ObterPerguntasExame(Materia chefe)
+    {
+        if (repositorioQuestoes != null && !string.IsNullOrWhiteSpace(chefe?.Nome))
+        {
+            List<Pergunta> perguntasBanco = repositorioQuestoes
+                .ObterExamePorMateria(chefe.Nome)
+                .Select(q => new Pergunta(q.Enunciado, q.Alternativas, q.IndiceCorreto, q.Explicacao))
+                .ToList();
+
+            if (perguntasBanco.Count > 0)
+            {
+                return perguntasBanco;
+            }
+        }
+
+        return chefe?.GetPerguntasExame() ?? new List<Pergunta>();
     }
 }
 
