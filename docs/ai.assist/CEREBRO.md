@@ -218,8 +218,8 @@ ConhecimentoInicial     = 0
 CapacidadeMaxima        = 6
 
 // Exame
-DanoBaseChefe           = 15   // dano base do chefe por resposta errada
-DanoBaseAluno           = 20   // dano base do aluno por resposta certa
+DanoBaseChefe           = 20   // dano base do chefe por resposta errada
+DanoBaseAluno           = 15   // dano base do aluno por resposta certa
 MinimoPerguntas         = 8
 
 // Quiz
