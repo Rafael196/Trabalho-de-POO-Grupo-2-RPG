@@ -57,11 +57,18 @@
             btnPedirDica2 = new Button();
             btnFazerQuiz = new Button();
             btnVoltarProfessor = new Button();
+            panelQuiz = new Panel();
+            rtbQuiz = new RichTextBox();
+            btnAltA = new Button();
+            btnAltB = new Button();
+            btnAltC = new Button();
+            btnAltD = new Button();
             panelMenu.SuspendLayout();
             panelNome.SuspendLayout();
             panelHall.SuspendLayout();
             panelVeterano.SuspendLayout();
             panelProfessor.SuspendLayout();
+            panelQuiz.SuspendLayout();
             SuspendLayout();
             // 
             // label1
@@ -179,8 +186,7 @@
             // 
             // panelHall
             // 
-            panelHall.BackColor = Color.Peru;
-            panelHall.BackgroundImage = Properties.Resources.hall;
+            panelHall.BackColor = Color.Transparent;
             panelHall.Controls.Add(rtbMensagens);
             panelHall.Controls.Add(opc7);
             panelHall.Controls.Add(opc6);
@@ -192,7 +198,7 @@
             panelHall.ForeColor = Color.Transparent;
             panelHall.Location = new Point(0, 0);
             panelHall.Name = "panelHall";
-            panelHall.Size = new Size(934, 651);
+            panelHall.Size = new Size(950, 651);
             panelHall.TabIndex = 7;
             panelHall.Visible = false;
             // 
@@ -381,13 +387,13 @@
             rtbProfessor.Text = "";
             rtbProfessor.TextChanged += rtbProfessor_TextChanged;
             // 
-            // btnPedirItem2
+            // btnPedirItemProfessor
             // 
             btnPedirItemProfessor.BackColor = Color.Transparent;
             btnPedirItemProfessor.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             btnPedirItemProfessor.ForeColor = Color.Black;
             btnPedirItemProfessor.Location = new Point(25, 586);
-            btnPedirItemProfessor.Name = "btnPedirItemProfessor";   // ← MUDE PARA ISTO
+            btnPedirItemProfessor.Name = "btnPedirItemProfessor";
             btnPedirItemProfessor.Size = new Size(200, 50);
             btnPedirItemProfessor.TabIndex = 0;
             btnPedirItemProfessor.Text = "1) Pedir item para a prova";
@@ -433,17 +439,94 @@
             btnVoltarProfessor.UseVisualStyleBackColor = false;
             btnVoltarProfessor.Click += btnVoltarProfessor_Click;
             // 
+            // panelQuiz
+            // 
+            panelQuiz.BackColor = Color.Gold;
+            panelQuiz.Controls.Add(rtbQuiz);
+            panelQuiz.Controls.Add(btnAltA);
+            panelQuiz.Controls.Add(btnAltB);
+            panelQuiz.Controls.Add(btnAltC);
+            panelQuiz.Controls.Add(btnAltD);
+            panelQuiz.ForeColor = Color.Transparent;
+            panelQuiz.Location = new Point(0, 0);
+            panelQuiz.Name = "panelQuiz";
+            panelQuiz.Size = new Size(934, 651);
+            panelQuiz.TabIndex = 11;
+            panelQuiz.Visible = false;
+            // 
+            // rtbQuiz
+            // 
+            rtbQuiz.Font = new Font("Calibri", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            rtbQuiz.Location = new Point(25, 501);
+            rtbQuiz.Name = "rtbQuiz";
+            rtbQuiz.Size = new Size(879, 79);
+            rtbQuiz.TabIndex = 7;
+            rtbQuiz.Text = "";
+            // 
+            // btnAltA
+            // 
+            btnAltA.BackColor = Color.Transparent;
+            btnAltA.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnAltA.ForeColor = Color.Black;
+            btnAltA.Location = new Point(25, 586);
+            btnAltA.Name = "btnAltA";
+            btnAltA.Size = new Size(200, 50);
+            btnAltA.TabIndex = 0;
+            btnAltA.Text = "1";
+            btnAltA.UseVisualStyleBackColor = false;
+            btnAltA.Click += btnAltA_Click;
+            // 
+            // btnAltB
+            // 
+            btnAltB.BackColor = Color.Transparent;
+            btnAltB.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnAltB.ForeColor = Color.Black;
+            btnAltB.Location = new Point(249, 586);
+            btnAltB.Name = "btnAltB";
+            btnAltB.Size = new Size(200, 50);
+            btnAltB.TabIndex = 8;
+            btnAltB.Text = "2";
+            btnAltB.UseVisualStyleBackColor = false;
+            btnAltB.Click += btnAltB_Click;
+            // 
+            // btnAltC
+            // 
+            btnAltC.BackColor = Color.Transparent;
+            btnAltC.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnAltC.ForeColor = Color.Black;
+            btnAltC.Location = new Point(476, 586);
+            btnAltC.Name = "btnAltC";
+            btnAltC.Size = new Size(200, 50);
+            btnAltC.TabIndex = 9;
+            btnAltC.Text = "3";
+            btnAltC.UseVisualStyleBackColor = false;
+            btnAltC.Click += btnAltC_Click;
+            // 
+            // btnAltD
+            // 
+            btnAltD.BackColor = Color.Transparent;
+            btnAltD.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnAltD.ForeColor = Color.Black;
+            btnAltD.Location = new Point(704, 586);
+            btnAltD.Name = "btnAltD";
+            btnAltD.Size = new Size(200, 50);
+            btnAltD.TabIndex = 10;
+            btnAltD.Text = "4";
+            btnAltD.UseVisualStyleBackColor = false;
+            btnAltD.Click += btnAltD_Click;
+            // 
             // TelaInicial
             // 
             AutoScaleDimensions = new SizeF(8F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Gray;
             ClientSize = new Size(934, 651);
-            Controls.Add(panelProfessor);
-            Controls.Add(panelVeterano);
             Controls.Add(panelHall);
+            Controls.Add(panelVeterano);
             Controls.Add(panelMenu);
             Controls.Add(panelNome);
+            Controls.Add(panelProfessor);
+            Controls.Add(panelQuiz);
             Font = new Font("MV Boli", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             ForeColor = Color.White;
             Name = "TelaInicial";
@@ -456,12 +539,8 @@
             panelHall.ResumeLayout(false);
             panelVeterano.ResumeLayout(false);
             panelProfessor.ResumeLayout(false);
+            panelQuiz.ResumeLayout(false);
             ResumeLayout(false);
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
         }
 
         #endregion
@@ -500,5 +579,14 @@
         private Button btnPedirItemProfessor;
         private Button btnVoltarProfessor;
         private Button btnFazerQuiz;
+        private Panel panelQuiz;
+        private RichTextBox rtbQuiz;
+        private Button button1;
+        private Button button2;
+        private Button button7;
+        private Button btnAltD;
+        private Button btnAltA;
+        private Button btnAltB;
+        private Button btnAltC;
     }
 }
