@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../../../backend/CampusQuest.Backend.csproj" />
+  <Project Path="CampusQuest.WinForms/CampusQuest.WinForms.csproj" />
+</Solution>

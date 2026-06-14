@@ -1,0 +1,28 @@
+{
+  "Versao": "1.0",
+  "DataSalvamento": "2026-06-14T23:37:45.1992466Z",
+  "Aluno": {
+    "Nome": "RAFAE",
+    "VidaAtual": 100,
+    "VidaMaxima": 100,
+    "Conhecimento": 40,
+    "SemestreAtual": 2,
+    "Habilidades": [
+      "Foco IC"
+    ],
+    "Aproveitamentos": [
+      50,
+      0,
+      0
+    ],
+    "Inventario": [],
+    "CafesRecebidosSemestre": 0,
+    "CadernosRecebidosSemestre": 0,
+    "LivrosRecebidosSemestre": 0
+  },
+  "Estatisticas": null,
+  "NomeAluno": "RAFAE",
+  "VidaAtual": 100,
+  "Conhecimento": 40,
+  "SemestreAtual": 2
+}
