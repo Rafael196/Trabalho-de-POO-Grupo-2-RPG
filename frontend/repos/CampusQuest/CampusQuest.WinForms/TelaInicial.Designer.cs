@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TelaInicial));
             label1 = new Label();
             btnNovoJogo = new Button();
             lblNome = new Label();
@@ -52,10 +51,17 @@
             btnPedirItem = new Button();
             btnPedirDica = new Button();
             btnVoltarVeterano = new Button();
+            panelProfessor = new Panel();
+            rtbProfessor = new RichTextBox();
+            btnPedirItemProfessor = new Button();
+            btnPedirDica2 = new Button();
+            btnFazerQuiz = new Button();
+            btnVoltarProfessor = new Button();
             panelMenu.SuspendLayout();
             panelNome.SuspendLayout();
             panelHall.SuspendLayout();
             panelVeterano.SuspendLayout();
+            panelProfessor.SuspendLayout();
             SuspendLayout();
             // 
             // label1
@@ -64,7 +70,7 @@
             label1.BackColor = Color.Transparent;
             label1.Font = new Font("Impact", 24.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             label1.ForeColor = Color.White;
-            label1.Location = new Point(383, 265);
+            label1.Location = new Point(355, 265);
             label1.Name = "label1";
             label1.Size = new Size(216, 41);
             label1.TabIndex = 0;
@@ -76,7 +82,7 @@
             btnNovoJogo.BackColor = SystemColors.ControlDarkDark;
             btnNovoJogo.FlatStyle = FlatStyle.Flat;
             btnNovoJogo.Font = new Font("Impact", 15F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnNovoJogo.Location = new Point(421, 320);
+            btnNovoJogo.Location = new Point(394, 320);
             btnNovoJogo.Name = "btnNovoJogo";
             btnNovoJogo.Size = new Size(150, 50);
             btnNovoJogo.TabIndex = 1;
@@ -120,7 +126,8 @@
             // 
             // panelMenu
             // 
-            panelMenu.BackgroundImage = (Image)resources.GetObject("panelMenu.BackgroundImage");
+            panelMenu.BackColor = Color.Transparent;
+            panelMenu.BackgroundImage = Properties.Resources.image1;
             panelMenu.Controls.Add(btnSair);
             panelMenu.Controls.Add(btnCarregarJogo);
             panelMenu.Controls.Add(label1);
@@ -136,7 +143,7 @@
             btnSair.BackColor = SystemColors.ControlDarkDark;
             btnSair.FlatStyle = FlatStyle.Flat;
             btnSair.Font = new Font("Impact", 15F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnSair.Location = new Point(421, 432);
+            btnSair.Location = new Point(394, 432);
             btnSair.Name = "btnSair";
             btnSair.Size = new Size(150, 50);
             btnSair.TabIndex = 3;
@@ -149,7 +156,7 @@
             btnCarregarJogo.BackColor = SystemColors.ControlDarkDark;
             btnCarregarJogo.FlatStyle = FlatStyle.Flat;
             btnCarregarJogo.Font = new Font("Impact", 15F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnCarregarJogo.Location = new Point(421, 376);
+            btnCarregarJogo.Location = new Point(394, 376);
             btnCarregarJogo.Name = "btnCarregarJogo";
             btnCarregarJogo.Size = new Size(150, 50);
             btnCarregarJogo.TabIndex = 2;
@@ -173,6 +180,7 @@
             // panelHall
             // 
             panelHall.BackColor = Color.Peru;
+            panelHall.BackgroundImage = Properties.Resources.hall;
             panelHall.Controls.Add(rtbMensagens);
             panelHall.Controls.Add(opc7);
             panelHall.Controls.Add(opc6);
@@ -190,6 +198,7 @@
             // 
             // rtbMensagens
             // 
+            rtbMensagens.Font = new Font("Calibri", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             rtbMensagens.Location = new Point(25, 429);
             rtbMensagens.Name = "rtbMensagens";
             rtbMensagens.Size = new Size(879, 79);
@@ -286,7 +295,7 @@
             // 
             // panelVeterano
             // 
-            panelVeterano.BackColor = Color.Peru;
+            panelVeterano.BackColor = Color.PeachPuff;
             panelVeterano.Controls.Add(rtbVeterano);
             panelVeterano.Controls.Add(btnPedirItem);
             panelVeterano.Controls.Add(btnPedirDica);
@@ -300,6 +309,7 @@
             // 
             // rtbVeterano
             // 
+            rtbVeterano.Font = new Font("Calibri", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             rtbVeterano.Location = new Point(25, 501);
             rtbVeterano.Name = "rtbVeterano";
             rtbVeterano.Size = new Size(879, 79);
@@ -318,6 +328,7 @@
             btnPedirItem.TabIndex = 0;
             btnPedirItem.Text = "1) Pedir item para a prova";
             btnPedirItem.UseVisualStyleBackColor = false;
+            btnPedirItem.Click += btnPedirItem_Click;
             // 
             // btnPedirDica
             // 
@@ -343,6 +354,84 @@
             btnVoltarVeterano.TabIndex = 9;
             btnVoltarVeterano.Text = "3) Encerrar conversa";
             btnVoltarVeterano.UseVisualStyleBackColor = false;
+            btnVoltarVeterano.Click += btnVoltarVeterano_Click;
+            // 
+            // panelProfessor
+            // 
+            panelProfessor.BackColor = Color.Tan;
+            panelProfessor.Controls.Add(rtbProfessor);
+            panelProfessor.Controls.Add(btnPedirItemProfessor);
+            panelProfessor.Controls.Add(btnPedirDica2);
+            panelProfessor.Controls.Add(btnFazerQuiz);
+            panelProfessor.Controls.Add(btnVoltarProfessor);
+            panelProfessor.ForeColor = Color.Transparent;
+            panelProfessor.Location = new Point(0, 0);
+            panelProfessor.Name = "panelProfessor";
+            panelProfessor.Size = new Size(934, 651);
+            panelProfessor.TabIndex = 10;
+            panelProfessor.Visible = false;
+            // 
+            // rtbProfessor
+            // 
+            rtbProfessor.Font = new Font("Calibri", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            rtbProfessor.Location = new Point(25, 501);
+            rtbProfessor.Name = "rtbProfessor";
+            rtbProfessor.Size = new Size(879, 79);
+            rtbProfessor.TabIndex = 7;
+            rtbProfessor.Text = "";
+            rtbProfessor.TextChanged += rtbProfessor_TextChanged;
+            // 
+            // btnPedirItem2
+            // 
+            btnPedirItemProfessor.BackColor = Color.Transparent;
+            btnPedirItemProfessor.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnPedirItemProfessor.ForeColor = Color.Black;
+            btnPedirItemProfessor.Location = new Point(25, 586);
+            btnPedirItemProfessor.Name = "btnPedirItemProfessor";   // ← MUDE PARA ISTO
+            btnPedirItemProfessor.Size = new Size(200, 50);
+            btnPedirItemProfessor.TabIndex = 0;
+            btnPedirItemProfessor.Text = "1) Pedir item para a prova";
+            btnPedirItemProfessor.UseVisualStyleBackColor = false;
+            btnPedirItemProfessor.Click += btnPedirItemProfessor_Click;
+            // 
+            // btnPedirDica2
+            // 
+            btnPedirDica2.BackColor = Color.Transparent;
+            btnPedirDica2.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnPedirDica2.ForeColor = Color.Black;
+            btnPedirDica2.Location = new Point(249, 586);
+            btnPedirDica2.Name = "btnPedirDica2";
+            btnPedirDica2.Size = new Size(200, 50);
+            btnPedirDica2.TabIndex = 8;
+            btnPedirDica2.Text = "2) Pedir dica de estudo";
+            btnPedirDica2.UseVisualStyleBackColor = false;
+            btnPedirDica2.Click += btnPedirDica2_Click;
+            // 
+            // btnFazerQuiz
+            // 
+            btnFazerQuiz.BackColor = Color.Transparent;
+            btnFazerQuiz.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnFazerQuiz.ForeColor = Color.Black;
+            btnFazerQuiz.Location = new Point(476, 586);
+            btnFazerQuiz.Name = "btnFazerQuiz";
+            btnFazerQuiz.Size = new Size(200, 50);
+            btnFazerQuiz.TabIndex = 9;
+            btnFazerQuiz.Text = "3) Fazer quiz";
+            btnFazerQuiz.UseVisualStyleBackColor = false;
+            btnFazerQuiz.Click += btnFazerQuiz_Click;
+            // 
+            // btnVoltarProfessor
+            // 
+            btnVoltarProfessor.BackColor = Color.Transparent;
+            btnVoltarProfessor.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnVoltarProfessor.ForeColor = Color.Black;
+            btnVoltarProfessor.Location = new Point(704, 586);
+            btnVoltarProfessor.Name = "btnVoltarProfessor";
+            btnVoltarProfessor.Size = new Size(200, 50);
+            btnVoltarProfessor.TabIndex = 10;
+            btnVoltarProfessor.Text = "4) Encerrar conversa";
+            btnVoltarProfessor.UseVisualStyleBackColor = false;
+            btnVoltarProfessor.Click += btnVoltarProfessor_Click;
             // 
             // TelaInicial
             // 
@@ -350,10 +439,11 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Gray;
             ClientSize = new Size(934, 651);
+            Controls.Add(panelProfessor);
             Controls.Add(panelVeterano);
+            Controls.Add(panelHall);
             Controls.Add(panelMenu);
             Controls.Add(panelNome);
-            Controls.Add(panelHall);
             Font = new Font("MV Boli", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             ForeColor = Color.White;
             Name = "TelaInicial";
@@ -365,7 +455,13 @@
             panelNome.PerformLayout();
             panelHall.ResumeLayout(false);
             panelVeterano.ResumeLayout(false);
+            panelProfessor.ResumeLayout(false);
             ResumeLayout(false);
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
@@ -391,11 +487,18 @@
         private Panel panelVeterano;
         private RichTextBox rtbVeterano;
         private Button btnPedirItem;
-        private Button button4;
         private Button button5;
         private Button button6;
         private Button opcV1;
         private Button btnVoltarVeterano;
         private Button btnPedirDica;
+        private Panel panelProfessor;
+        private Button button4;
+        private Button button3;
+        private Button btnPedirDica2;
+        private RichTextBox rtbProfessor;
+        private Button btnPedirItemProfessor;
+        private Button btnVoltarProfessor;
+        private Button btnFazerQuiz;
     }
 }

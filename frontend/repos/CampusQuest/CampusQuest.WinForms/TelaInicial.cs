@@ -1,10 +1,18 @@
+using System;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using CampusQuest.Core;
 using CampusQuest.NPCs;
+using CampusQuest.Quiz;
+
 namespace CampusQuest.WinForms
 {
     public partial class TelaInicial : Form
     {
         private Aluno? alunoAtual;
+        private Veterano? veteranoAtual;
+        private Professor? professorAtual;
+
         public TelaInicial()
         {
             InitializeComponent();
@@ -20,7 +28,6 @@ namespace CampusQuest.WinForms
 
         private void btnNovoJogo_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Botão Novo Jogo clicado!");
             panelMenu.Visible = false;
             panelNome.Visible = true;
             panelNome.BringToFront();
@@ -41,7 +48,7 @@ namespace CampusQuest.WinForms
             panelHall.Visible = true;
 
             rtbMensagens.Clear();
-            rtbMensagens.AppendText($"Bem-vindo, {alunoAtual.Nome}!\n\n");
+            rtbMensagens.AppendText($"Bem-vindo, {alunoAtual.Nome}!\n");
             rtbMensagens.AppendText("Escolha uma opção pelos botões abaixo.\n");
         }
 
@@ -55,84 +62,120 @@ namespace CampusQuest.WinForms
             MessageBox.Show("Funcionalidade de carregar jogo ainda não implementada.");
         }
 
-        private void rtbMensagens_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-        private void label1_Click(object sender, EventArgs e)
-        {
-        }
-        private void lblNome_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void txtNome_TextChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-        }
-
-        private void panelNome_Paint(object sender, PaintEventArgs e)
-        {
-        }
-
+        // ====================== VETERANO ======================
         private void opc1_Click(object sender, EventArgs e)
         {
-            if (alunoAtual == null)
-                return;
+            if (alunoAtual == null) return;
 
             panelHall.Visible = false;
             panelVeterano.Visible = true;
 
-            Veterano veterano = new Veterano();
+            veteranoAtual = new Veterano();
 
             rtbVeterano.Clear();
-            rtbVeterano.AppendText(veterano.GetMensagemAbertura(alunoAtual));
-        }
-
-        private void opc2_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void opc3_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void opc4_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void opc5_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void opc6_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void opc7_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void rtbVeterano_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-        private void btnPedirItem_TextChanged(object sender, EventArgs e)
-        {
-
+            rtbVeterano.AppendText(veteranoAtual.GetMensagemAbertura(alunoAtual));
         }
 
         private void btnPedirDica_Click(object sender, EventArgs e)
         {
-            if (alunoAtual == null)
-                return;
+            if (alunoAtual == null) return;
 
             Veterano veterano = new Veterano();
             rtbVeterano.Clear();
             rtbVeterano.AppendText(veterano.ObterDica(alunoAtual));
+        }
+
+        private void btnPedirItem_Click(object sender, EventArgs e)
+        {
+            if (alunoAtual == null || veteranoAtual == null) return;
+
+            var item = veteranoAtual.SolicitarItem(alunoAtual);
+
+            if (item == null)
+            {
+                rtbVeterano.AppendText("\nNenhum item disponível no momento.\n");
+                return;
+            }
+
+            if (!alunoAtual.PodeReceberItem(item))
+            {
+                rtbVeterano.AppendText("\nLimite de itens do semestre atingido.\n");
+                return;
+            }
+
+            if (alunoAtual.Inventario.Adicionar(item))
+            {
+                alunoAtual.RegistrarItemRecebido(item);
+                rtbVeterano.AppendText($"\nItem recebido: {item.GetType().Name}\n");
+            }
+            else
+            {
+                rtbVeterano.AppendText("\nInventário cheio. Item não adicionado.\n");
+            }
+        }
+
+        private void btnVoltarVeterano_Click(object sender, EventArgs e)
+        {
+            panelVeterano.Visible = false;
+            panelHall.Visible = true;
+        }
+
+        // ====================== PROFESSOR ======================
+        private void opc2_Click(object sender, EventArgs e)
+        {
+            if (alunoAtual == null)
+            {
+                MessageBox.Show("Nenhum aluno logado!");
+                return;
+            }
+
+            panelHall.Visible = false;
+            panelProfessor.Visible = true;
+            panelProfessor.BringToFront();
+
+            Professor professor = new Professor();
+            rtbProfessor.Clear();
+            rtbProfessor.AppendText(professor.GetMensagemAbertura(alunoAtual));
+        }
+
+        private void btnPedirItemProfessor_Click(object sender, EventArgs e)
+        {
+            if (alunoAtual == null) return;
+
+            Professor professor = new Professor();
+            string mensagem = professor.MensagemItemIndisponivel(alunoAtual);
+
+            rtbProfessor.Clear();
+            rtbProfessor.AppendText(mensagem);
+        }
+
+        private void btnPedirDica2_Click(object sender, EventArgs e)
+        {
+            if (alunoAtual == null) return;
+
+            Professor professor = new Professor();
+            string dica = professor.ObterDica(alunoAtual);
+
+            rtbProfessor.Clear();
+            rtbProfessor.AppendText(dica);
+        }
+
+        private void btnFazerQuiz_Click(object sender, EventArgs e)
+        {
+            if (alunoAtual == null) return;
+
+            professorAtual = new Professor();
+
+            rtbProfessor.Clear();
+            rtbProfessor.AppendText(professorAtual.GetMensagemAbertura(alunoAtual) + "\n\n");
+
+            var aceitar = MessageBox.Show("Aceitar fazer o quiz de reforço?",
+                "Quiz do Professor", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (aceitar == DialogResult.No)
+            {
+                rtbProfessor.AppendText("Quiz recusado. Volte quando quiser estudar.\n");
+            }
         }
     }
 }
