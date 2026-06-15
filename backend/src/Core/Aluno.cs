@@ -16,6 +16,9 @@ public class Aluno : Personagem
     public int CafesRecebidosSemestre { get; private set; }
     public int CadernosRecebidosSemestre { get; private set; }
     public int LivrosRecebidosSemestre { get; private set; }
+    public int SemestresRepetidos { get; private set; }
+    public int QuizzesConcluidos { get; private set; }
+    public int ItensUsados { get; private set; }
 
     public Aluno()
     {
@@ -29,6 +32,9 @@ public class Aluno : Personagem
         CafesRecebidosSemestre = 0;
         CadernosRecebidosSemestre = 0;
         LivrosRecebidosSemestre = 0;
+        SemestresRepetidos = 0;
+        QuizzesConcluidos = 0;
+        ItensUsados = 0;
         vidaMaxima = 100;
         vida = vidaMaxima;
         conhecimento = 0;
@@ -184,6 +190,34 @@ public class Aluno : Personagem
         {
             LivrosRecebidosSemestre++;
         }
+    }
+
+    public void RegistrarQuizConcluido()
+    {
+        QuizzesConcluidos++;
+    }
+
+    public void RegistrarItemUsado()
+    {
+        ItensUsados++;
+    }
+
+    public void RegistrarSemestreRepetido()
+    {
+        SemestresRepetidos++;
+    }
+
+    public void RegistrarBonusCoragemAplicado()
+    {
+        BonusCoragemAplicado = true;
+    }
+
+    public void DefinirEstatisticas(int semestresRepetidos, int quizzesConcluidos, int itensUsados, bool bonusCoragemAplicado)
+    {
+        SemestresRepetidos = Math.Max(0, semestresRepetidos);
+        QuizzesConcluidos = Math.Max(0, quizzesConcluidos);
+        ItensUsados = Math.Max(0, itensUsados);
+        BonusCoragemAplicado = bonusCoragemAplicado;
     }
 
     public void DefinirContagemItensSemestre(int cafes, int cadernos, int livros)
