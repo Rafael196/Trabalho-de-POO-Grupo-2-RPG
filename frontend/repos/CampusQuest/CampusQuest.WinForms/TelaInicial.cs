@@ -2,9 +2,10 @@ using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CampusQuest.Core;
+using CampusQuest.Itens;
+using CampusQuest.Materias;
 using CampusQuest.NPCs;
 using CampusQuest.Quiz;
-using CampusQuest.Itens;
 
 namespace CampusQuest.WinForms
 {
@@ -17,6 +18,11 @@ namespace CampusQuest.WinForms
         private int perguntaAtual = 0;
         private int acertosQuiz = 0;
         private int semestreQuiz = 1;
+        private IC? chefeIC;
+        private List<Pergunta>? perguntasExame;
+        private int perguntaExameAtual;
+        private int acertosExame;
+        private int errosExame;
 
         public TelaInicial()
         {
@@ -401,6 +407,157 @@ namespace CampusQuest.WinForms
             panelHall.Visible = true;
         }
 
+        // ====================== SALA DE EXAME ======================
+
+        private void opc3_Click(object sender, EventArgs e)
+        {
+            panelHall.Visible = false;
+            panelSalaExame.Visible = true;
+
+            chefeIC = new IC();
+
+            perguntasExame = chefeIC.GetPerguntasExame();
+
+            perguntaExameAtual = 0;
+            acertosExame = 0;
+            errosExame = 0;
+
+            lblMateria.Text = chefeIC.Nome;
+
+            AtualizarStatusExame();
+
+            MostrarPerguntaExame();
+        }
+
+        private void AtualizarStatusExame()
+        {
+            lblVidaAluno.Text =
+                $"Aluno: {alunoAtual.Vida}/{alunoAtual.VidaMaxima}";
+
+            lblVidaChefe.Text =
+                $"Chefe: {chefeIC.GetVidaAtual()}/{chefeIC.GetVidaMaxima()}";
+        }
+
+        private void MostrarPerguntaExame()
+        {
+            Pergunta pergunta = perguntasExame[perguntaExameAtual];
+
+            rtbExame.Clear();
+
+            rtbExame.AppendText(
+                $"Pergunta {perguntaExameAtual + 1}\n\n");
+
+            rtbExame.AppendText(
+                pergunta.Enunciado);
+
+            btnExamA.Text = pergunta.Alternativas[0];
+            btnExamB.Text = pergunta.Alternativas[1];
+            btnExamC.Text = pergunta.Alternativas[2];
+            btnExamD.Text = pergunta.Alternativas[3];
+        }
+
+        private void btnExamA_Click(object sender, EventArgs e)
+        {
+            ResponderPerguntaExame(0);
+        }
+
+        private void btnExamB_Click(object sender, EventArgs e)
+        {
+            ResponderPerguntaExame(1);
+        }
+
+        private void btnExamC_Click(object sender, EventArgs e)
+        {
+            ResponderPerguntaExame(2);
+        }
+
+        private void btnExamD_Click(object sender, EventArgs e)
+        {
+            ResponderPerguntaExame(3);
+        }
+
+        private void ResponderPerguntaExame(int respostaEscolhida)
+        {
+            Pergunta pergunta = perguntasExame[perguntaExameAtual];
+
+            if (pergunta.VerificarResposta(respostaEscolhida))
+            {
+                acertosExame++;
+
+                chefeIC.ReceberDano(25);
+
+                rtbExame.AppendText("\n\n✓ Resposta correta!");
+                rtbExame.AppendText("\nVocê causou 25 de dano ao chefe.");
+            }
+            else
+            {
+                errosExame++;
+
+                alunoAtual.ReceberDano(20);
+
+                rtbExame.AppendText("\n\n✗ Resposta incorreta!");
+                rtbExame.AppendText("\n" + pergunta.Explicacao);
+                rtbExame.AppendText("\nVocê recebeu 20 de dano.");
+            }
+
+            AtualizarStatusExame();
+
+            if (chefeIC.EstaVencido())
+            {
+                VitoriaExame();
+                return;
+            }
+
+            if (!alunoAtual.EstaVivo())
+            {
+                DerrotaExame();
+                return;
+            }
+
+            perguntaExameAtual++;
+
+            if (perguntaExameAtual >= perguntasExame.Count)
+            {
+                if (chefeIC.GetVidaAtual() < alunoAtual.Vida)
+                    VitoriaExame();
+                else
+                    DerrotaExame();
+
+                return;
+            }
+
+            MostrarPerguntaExame();
+        }
+
+        private void VitoriaExame()
+        {
+            MessageBox.Show("Você venceu o exame!");
+
+            alunoAtual.AvancarSemestre();
+
+            panelSalaExame.Visible = false;
+            panelHall.Visible = true;
+
+            rtbMensagens.Clear();
+            rtbMensagens.AppendText("Você foi aprovado!\n");
+            rtbMensagens.AppendText(
+                $"Agora você está no semestre {alunoAtual.SemestreAtual}.\n");
+        }
+
+        private void DerrotaExame()
+        {
+            MessageBox.Show("Você foi reprovado no exame!");
+
+            panelSalaExame.Visible = false;
+            panelHall.Visible = true;
+
+            rtbMensagens.Clear();
+            rtbMensagens.AppendText("Você falhou no exame.\n");
+            rtbMensagens.AppendText(
+                "Continue estudando antes de tentar novamente.\n");
+        }
+        // ====================== NAO USO ======================
+
         private void txtNome_TextChanged(object sender, EventArgs e)
         {
         }
@@ -414,10 +571,6 @@ namespace CampusQuest.WinForms
         }
 
         private void rtbMensagens_TextChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void opc3_Click(object sender, EventArgs e)
         {
         }
 
@@ -460,6 +613,27 @@ namespace CampusQuest.WinForms
         {
             ResponderPergunta(3);
 
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lblVidaAluno_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lblVidaChefe_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void opc7_Click(object sender, EventArgs e)
+        {
+            panelHall.Visible = false;
+            panelMenu.Visible = true;
         }
     }
 }

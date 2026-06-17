@@ -1,18 +1,19 @@
 {
   "Versao": "1.0",
-  "DataSalvamento": "2026-06-14T23:37:45.1992466Z",
+  "DataSalvamento": "2026-06-16T19:16:15.1318479Z",
   "Aluno": {
-    "Nome": "RAFAE",
-    "VidaAtual": 100,
+    "Nome": "ra",
+    "VidaAtual": 50,
     "VidaMaxima": 100,
-    "Conhecimento": 40,
-    "SemestreAtual": 2,
+    "Conhecimento": 0,
+    "SemestreAtual": 3,
     "Habilidades": [
-      "Foco IC"
+      "Foco IC",
+      "Foco AED"
     ],
     "Aproveitamentos": [
-      50,
-      0,
+      54,
+      54,
       0
     ],
     "Inventario": [],
@@ -21,8 +22,8 @@
     "LivrosRecebidosSemestre": 0
   },
   "Estatisticas": null,
-  "NomeAluno": "RAFAE",
-  "VidaAtual": 100,
-  "Conhecimento": 40,
-  "SemestreAtual": 2
+  "NomeAluno": "ra",
+  "VidaAtual": 50,
+  "Conhecimento": 0,
+  "SemestreAtual": 3
 }

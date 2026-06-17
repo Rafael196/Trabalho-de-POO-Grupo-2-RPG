@@ -63,9 +63,9 @@ namespace CampusQuest.WinForms.Properties {
         /// <summary>
         ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap corredor__1_ {
+        internal static System.Drawing.Bitmap bonecodefinitivo {
             get {
-                object obj = ResourceManager.GetObject("corredor (1)", resourceCulture);
+                object obj = ResourceManager.GetObject("bonecodefinitivo", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,19 @@ namespace CampusQuest.WinForms.Properties {
         /// <summary>
         ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap corredor__1_1 {
+        internal static System.Drawing.Bitmap copo {
             get {
-                object obj = ResourceManager.GetObject("corredor (1)1", resourceCulture);
+                object obj = ResourceManager.GetObject("copo", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap corredorreal {
+            get {
+                object obj = ResourceManager.GetObject("corredorreal", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -103,6 +113,26 @@ namespace CampusQuest.WinForms.Properties {
         /// <summary>
         ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap hallInicio {
+            get {
+                object obj = ResourceManager.GetObject("hallInicio", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap hallInicio1 {
+            get {
+                object obj = ResourceManager.GetObject("hallInicio1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap image {
             get {
                 object obj = ResourceManager.GetObject("image", resourceCulture);
@@ -113,9 +143,9 @@ namespace CampusQuest.WinForms.Properties {
         /// <summary>
         ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap image1 {
+        internal static System.Drawing.Bitmap iniciopuc {
             get {
-                object obj = ResourceManager.GetObject("image1", resourceCulture);
+                object obj = ResourceManager.GetObject("iniciopuc", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -123,9 +153,49 @@ namespace CampusQuest.WinForms.Properties {
         /// <summary>
         ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap iniciopuc {
+        internal static System.Drawing.Bitmap professor {
             get {
-                object obj = ResourceManager.GetObject("iniciopuc", resourceCulture);
+                object obj = ResourceManager.GetObject("professor", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap professor__1___1_ {
+            get {
+                object obj = ResourceManager.GetObject("professor (1) (1)", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap professor__1___2_ {
+            get {
+                object obj = ResourceManager.GetObject("professor (1) (2)", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap sala_quiz {
+            get {
+                object obj = ResourceManager.GetObject("sala quiz", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta um recurso localizado do tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap salaProfessor {
+            get {
+                object obj = ResourceManager.GetObject("salaProfessor", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
