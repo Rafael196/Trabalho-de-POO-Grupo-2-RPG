@@ -15,44 +15,51 @@ ULTIMA ATUALIZACAO : Maio/2026
 ### Checklist de progresso (Fase 1)
 
 #### Fundação
-- [ ] `Personagem.cs` — classe abstrata base
-- [ ] `Aluno.cs` — personagem jogável com aproveitamentos e habilidades
-- [ ] `Habilidade.cs` + enum `TipoEfeito`
-- [ ] `Inventario.cs` — lista com capacidade máxima
+- [x] `Personagem.cs` — classe abstrata base
+- [x] `Aluno.cs` — personagem jogável com aproveitamentos e habilidades
+- [x] `Habilidade.cs` + enum `TipoEfeito`
+- [x] `Inventario.cs` — lista com capacidade máxima
+- [x] `HabilidadeCatalogo.cs` — catálogo centralizado de habilidades (extra)
 
 #### Matérias (Chefes)
-- [ ] `Materia.cs` — abstrata com contrato de exame
-- [ ] `IC.cs` — ataque Loop Infinito
-- [ ] `AED.cs` — ataque Stack Overflow
-- [ ] `POO.cs` — ataque NullPointerException
-- [ ] `TCC.cs` — síntese total escalada pela média
+- [x] `Materia.cs` — abstrata com contrato de exame
+- [x] `IC.cs` — ataque Loop Infinito
+- [x] `AED.cs` — ataque Stack Overflow
+- [x] `POO.cs` — ataque NullPointerException
+- [x] `TCC.cs` — síntese total escalada pela média
 
 #### NPCs
-- [ ] `NPC.cs` — abstrata
-- [ ] `Professor.cs` — sugestão e aplicação de quiz
-- [ ] `Veterano.cs` — dicas e itens (no Hall)
-- [ ] `Coordenador.cs` — trancamento de semestre
+- [x] `NPC.cs` — abstrata
+- [x] `Professor.cs` — sugestão e aplicação de quiz
+- [x] `Veterano.cs` — dicas e itens (no Hall)
+- [x] `Coordenador.cs` — trancamento de semestre
 
 #### Itens
-- [ ] `Item.cs` — abstrata
-- [ ] `Cafe.cs`
-- [ ] `Caderno.cs`
-- [ ] `LivroTecnico.cs`
+- [x] `Item.cs` — abstrata
+- [x] `Cafe.cs`
+- [x] `Caderno.cs`
+- [x] `LivroTecnico.cs`
+- [x] `Cola.cs` — item secreto
 
 #### Quiz
-- [ ] `Pergunta.cs`
-- [ ] `SistemaQuiz.cs` + `ResultadoQuiz`
-- [ ] Banco de perguntas por semestre (mín. 5 por semestre)
+- [x] `Pergunta.cs`
+- [x] `SistemaQuiz.cs` + `ResultadoQuiz`
+- [x] Banco de perguntas por semestre (30+ questões no SQLite)
 
 #### Exame
-- [ ] `ContextoExame.cs`
-- [ ] `SistemaExame.cs` + `ResultadoExame`
-- [ ] `CalculadoraMedia.cs`
+- [x] `ContextoExame.cs`
+- [x] `SistemaExame.cs` + `ResultadoExame`
+- [x] `CalculadoraMedia.cs`
 
 #### Persistência
-- [ ] `EstadoJogo.cs` + `DadosAluno` + `Estatisticas`
-- [ ] `IRepositorio.cs`
-- [ ] `RepositorioJson.cs`
+- [x] `EstadoJogo.cs` + `DadosAluno` + `Estatisticas`
+- [x] `IRepositorio.cs`
+- [x] `RepositorioJson.cs`
+- [x] `SqliteRepositorioSave.cs` — implementação SQLite (extra)
+- [x] `IRepositorioQuestoes.cs` — interface para banco de questões (extra)
+- [x] `SqliteRepositorioQuestoes.cs` — implementação SQLite (extra)
+- [x] `DatabaseInitializer.cs` — inicializa BD com schema e seed (extra)
+- [x] `EstadoJogoFactory.cs` — factory de conversão (extra)
 
 #### Estados (padrão State)
 - [x] `IEstadoJogo.cs`
@@ -62,20 +69,29 @@ ULTIMA ATUALIZACAO : Maio/2026
 - [x] `EstadoExame.cs`
 - [x] `EstadoGameOver.cs`
 - [x] `EstadoVitoria.cs`
+- [x] `EstadoSair.cs` (interno em JogoContexto)
+
+#### Eventos (padrão Observer)
+- [x] `IEventoJogo.cs` — interface marcadora (extra)
+- [x] `IObservadorJogo.cs` — interface genérica (extra)
+- [x] `EventoBus.cs` — sistema pub/sub (extra)
+- [x] `ItemAdquiridoEvento.cs` (extra)
+- [x] `HabilidadeDesbloqueadaEvento.cs` (extra)
 
 #### Cenários
-- [ ] `Hall.cs`
-- [ ] `SalaProfessor.cs`
-- [ ] `SalaExame.cs`
-- [ ] `SalaCoordenacao.cs`
+- [x] Funcionalidade de Hall, SalaProfessor, SalaExame, SalaCoordenacao
+  - **Nota**: Integradas em `EstadoExplorando.cs` (não há classes separadas)
 
 #### UI Console
-- [ ] `MenuConsole.cs`
+- [x] `IConsoleIO.cs` — interface de I/O
+- [x] `ConsoleIO.cs` — implementação concreta
+  - **Nota**: Documentação menciona `MenuConsole.cs`, mas implementação é modular (IConsoleIO + ConsoleIO)
 
 #### Integração e Testes
-- [ ] Fluxo completo: novo jogo → semestre 1 → semestre 2 → semestre 3 → TCC
-- [ ] Save e Load funcionando de ponta a ponta
-- [ ] Todos os CA Alta concluídos
+- [x] Fluxo completo: novo jogo → semestre 1 → semestre 2 → semestre 3 → TCC
+- [x] Save e Load funcionando de ponta a ponta (JSON + SQLite)
+- [x] Todos os padrões de projeto implementados
+- [x] `FluxoTeste.cs` — teste manual de fluxo (extra)
 
 ---
 
@@ -155,6 +171,11 @@ Cole CONTEXT_COMPACT + os dois blocos de CLASS_CONTRACTS + descreva a integraç�
 | D08 | Persistência via IRepositorio (interface) | Permite trocar JSON por banco de dados sem mudar o domínio |
 | D09 | Padrão State para fluxo do jogo | Isola responsabilidade de cada tela/estado, facilita testes |
 | D10 | Um curso apenas (TI) por ora | Foco no prazo; arquitetura permite adicionar cursos depois via herança |
+| D11 | SQLite como persistência principal | Robustez, ACID, facilita queries; JSON mantido como backup legível |
+| D12 | EventoBus para Observer | Sistema pub/sub desacoplado; facilita adicionar novos eventos sem modificar publishers |
+| D13 | Cenários integrados em EstadoExplorando | Evita criar classes desnecessárias; toda navegação em um único estado |
+| D14 | IConsoleIO ao invés de MenuConsole | Abstração facilita testes e troca de UI (console → GUI) |
+| D15 | Banco de questões em SQLite | Facilita adicionar/editar questões sem recompilar; permite CRUD via UI futura |
 
 ---
 

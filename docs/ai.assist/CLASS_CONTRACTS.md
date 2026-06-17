@@ -468,25 +468,193 @@ public class JogoContexto
 
 ## UI Console
 
-### `MenuConsole` — `src/UI/Console/MenuConsole.cs`
+### `IConsoleIO` (interface) — `src/UI/IConsoleIO.cs`
 ```csharp
-public static class MenuConsole
+public interface IConsoleIO
 {
-    public static int ExibirOpcoes(string titulo, string[] opcoes);
-    // Exibe menu numerado, valida input, retorna índice escolhido (0-based)
-
-    public static void ExibirStatus(Aluno aluno);
-    // Exibe vida, conhecimento, semestre atual, aproveitamentos e habilidades
-
-    public static void ExibirMensagem(string mensagem, TipoMensagem tipo);
-    // TipoMensagem: Info, Sucesso, Erro, Alerta
-
-    public static string LerEntrada(string prompt);
-    // Lê string com validação de nulo/vazio
-
-    public static void Limpar();
-    public static void Pausar(string mensagem = "Pressione qualquer tecla para continuar...");
+    void WriteLine(string mensagem);
+    void Write(string mensagem);
+    void WriteLineCor(string mensagem, ConsoleColor cor);
+    string ReadLine();
+    ConsoleKeyInfo ReadKey();
+    void Clear();
+    void SetCursorPosition(int left, int top);
+    void ExibirTitulo(string titulo);
+    void ExibirSeparador();
+    void ExibirMensagemSucesso(string mensagem);
+    void ExibirMensagemErro(string mensagem);
+    void ExibirMensagemAlerta(string mensagem);
+    void Pausar(string mensagem = "Pressione qualquer tecla para continuar...");
+    int ExibirMenu(string[] opcoes);
 }
+```
 
-public enum TipoMensagem { Info, Sucesso, Erro, Alerta }
+### `ConsoleIO` — `src/UI/ConsoleIO.cs`
+```csharp
+public class ConsoleIO : IConsoleIO
+{
+    public void WriteLine(string mensagem);
+    public void Write(string mensagem);
+    public void WriteLineCor(string mensagem, ConsoleColor cor);
+    public string ReadLine();
+    public ConsoleKeyInfo ReadKey();
+    public void Clear();
+    public void SetCursorPosition(int left, int top);
+    public void ExibirTitulo(string titulo);
+    public void ExibirSeparador();
+    public void ExibirMensagemSucesso(string mensagem);
+    public void ExibirMensagemErro(string mensagem);
+    public void ExibirMensagemAlerta(string mensagem);
+    public void Pausar(string mensagem = "Pressione qualquer tecla para continuar...");
+    public int ExibirMenu(string[] opcoes);  // retorna índice escolhido (0-based)
+}
+```
+
+---
+
+## Eventos (padrão Observer)
+
+### `IEventoJogo` (interface marcadora) — `src/Eventos/IEventoJogo.cs`
+```csharp
+public interface IEventoJogo
+{
+    // Interface marcadora para eventos do sistema
+}
+```
+
+### `IObservadorJogo<T>` (interface genérica) — `src/Eventos/IObservadorJogo.cs`
+```csharp
+public interface IObservadorJogo<in T> where T : IEventoJogo
+{
+    void OnEvento(T evento);
+}
+```
+
+### `EventoBus` — `src/Eventos/EventoBus.cs`
+```csharp
+public static class EventoBus
+{
+    public static void Inscrever<T>(Action<T> handler) where T : IEventoJogo;
+    public static void Desinscrever<T>(Action<T> handler) where T : IEventoJogo;
+    public static void Publicar<T>(T evento) where T : IEventoJogo;
+    public static void LimparTodos();
+}
+```
+
+### `ItemAdquiridoEvento` — `src/Eventos/ItemAdquiridoEvento.cs`
+```csharp
+public class ItemAdquiridoEvento : IEventoJogo
+{
+    public Item Item { get; }
+    public string NomeAluno { get; }
+    
+    public ItemAdquiridoEvento(Item item, string nomeAluno);
+}
+```
+
+### `HabilidadeDesbloqueadaEvento` — `src/Eventos/HabilidadeDesbloqueadaEvento.cs`
+```csharp
+public class HabilidadeDesbloqueadaEvento : IEventoJogo
+{
+    public Habilidade Habilidade { get; }
+    public string NomeAluno { get; }
+    
+    public HabilidadeDesbloqueadaEvento(Habilidade habilidade, string nomeAluno);
+}
+```
+
+---
+
+## Persistência (Extensões SQLite)
+
+### `IRepositorioQuestoes` (interface) — `src/Persistencia/IRepositorioQuestoes.cs`
+```csharp
+public interface IRepositorioQuestoes
+{
+    List<Pergunta> BuscarPorSemestreEMateria(int semestre, string materia, string tipo);
+    void Inserir(QuestaoDto questao);
+    void Atualizar(QuestaoDto questao);
+    void Deletar(int id);
+    List<QuestaoDto> ListarTodas();
+}
+```
+
+### `SqliteRepositorioSave` — `src/Persistencia/SqliteRepositorioSave.cs`
+```csharp
+public class SqliteRepositorioSave : IRepositorio
+{
+    public SqliteRepositorioSave(string caminhoDb = "database/campusquest.db");
+    
+    public void Salvar(EstadoJogo estado);
+    public EstadoJogo Carregar();
+    public bool ExisteArquivo();
+    public void Deletar();
+}
+```
+
+### `SqliteRepositorioQuestoes` — `src/Persistencia/SqliteRepositorioQuestoes.cs`
+```csharp
+public class SqliteRepositorioQuestoes : IRepositorioQuestoes
+{
+    public SqliteRepositorioQuestoes(string caminhoDb = "database/campusquest.db");
+    
+    public List<Pergunta> BuscarPorSemestreEMateria(int semestre, string materia, string tipo);
+    public void Inserir(QuestaoDto questao);
+    public void Atualizar(QuestaoDto questao);
+    public void Deletar(int id);
+    public List<QuestaoDto> ListarTodas();
+}
+```
+
+### `DatabaseInitializer` — `src/Persistencia/DatabaseInitializer.cs`
+```csharp
+public static class DatabaseInitializer
+{
+    public static void Inicializar();                          // cria schema + seed
+    private static void EnsureDatabaseDirectory();             // garante diretório database/
+    private static void CriarSchemaSeNaoExistir();             // cria tabelas Questoes, SaveJogo
+    private static void SeedQuestoesSeVazio();                 // insere 30+ questões padrão
+}
+```
+
+### `EstadoJogoFactory` — `src/Persistencia/EstadoJogoFactory.cs`
+```csharp
+public static class EstadoJogoFactory
+{
+    public static EstadoJogo CriarDe(Aluno aluno);             // Aluno → EstadoJogo
+    public static Aluno RestaurarAluno(EstadoJogo estado);     // EstadoJogo → Aluno
+}
+```
+
+### `QuestaoDto` — `src/Persistencia/QuestaoDto.cs`
+```csharp
+public class QuestaoDto
+{
+    public int Id { get; set; }
+    public string Enunciado { get; set; }
+    public string[] Alternativas { get; set; }       // sempre 4
+    public int IndiceCorreto { get; set; }           // 0-3
+    public string Explicacao { get; set; }
+    public int Semestre { get; set; }                // 1-4
+    public string Materia { get; set; }              // IC, AED, POO, TCC
+    public string Tipo { get; set; }                 // Quiz ou Exame
+    public string Dificuldade { get; set; }          // Normal, Media, Dificil
+    public bool Ativa { get; set; }                  // flag para desativar sem deletar
+}
+```
+
+---
+
+## Core (Extensões)
+
+### `HabilidadeCatalogo` — `src/Core/HabilidadeCatalogo.cs`
+```csharp
+public static class HabilidadeCatalogo
+{
+    public static Habilidade FocoIC { get; }           // aumenta dano contra IC
+    public static Habilidade FocoAED { get; }          // aumenta dano contra AED
+    public static Habilidade FocoPOO { get; }          // aumenta dano contra POO
+    
+    public static Habilidade ObterPorNome(string nome);
+}
 ```
