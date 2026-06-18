@@ -8,7 +8,7 @@ public class Cola : Item
     public Cola()
     {
         Nome = "Cola";
-        Descricao = "Garante um acerto na proxima pergunta do exame.";
+        Descricao = "Elimina duas alternativas no exame — uso único.";
     }
 
     public override void Usar(Aluno aluno)
@@ -23,6 +23,6 @@ public class Cola : Item
 
     public override string GetDescricaoEfeito()
     {
-        return "Garante um acerto na proxima pergunta do exame.";
+        return "Elimina duas alternativas no exame — uso único.";
     }
 }

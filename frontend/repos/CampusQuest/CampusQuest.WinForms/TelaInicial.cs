@@ -248,7 +248,8 @@ namespace CampusQuest.WinForms
                 (int)((double)acertosQuiz /
                 perguntasQuiz.Length * 100);
 
-            int ganhoConhecimento = acertosQuiz * 10;
+            bool revisao = semestreQuiz < alunoAtual?.SemestreAtual;
+            int ganhoConhecimento = acertosQuiz * 10 * (revisao ? 50 : 100) / 100;
 
             alunoAtual?.AumentarConhecimento(ganhoConhecimento);
 
@@ -258,7 +259,14 @@ namespace CampusQuest.WinForms
 
             if (aproveitamento >= 80)
             {
-                itemRecebido = new LivroTecnico("POO");
+                string materiaAlvo = semestreQuiz switch
+                {
+                    1 => "IC",
+                    2 => "AED",
+                    3 => "POO",
+                    _ => "IC"
+                };
+                itemRecebido = new LivroTecnico(materiaAlvo);
             }
             else if (aproveitamento >= 50)
             {
@@ -278,6 +286,14 @@ namespace CampusQuest.WinForms
                     alunoAtual.RegistrarItemRecebido(itemRecebido);
                     recompensa = itemRecebido.GetType().Name;
                 }
+                else
+                {
+                    rtbProfessor.AppendText("Inventário cheio. Item não adicionado.\n");
+                }
+            }
+            else if (alunoAtual != null && itemRecebido != null)
+            {
+                rtbProfessor.AppendText($"Limite de {itemRecebido.GetType().Name} do semestre atingido. Item não adicionado.\n");
             }
             panelQuiz.Visible = false;
             panelProfessor.Visible = true;
