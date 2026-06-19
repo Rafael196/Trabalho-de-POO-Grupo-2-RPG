@@ -250,7 +250,7 @@ else
 | Café | Restaura Vida parcialmente | Veterano / Quiz 0–49% | 3 por semestre |
 | Caderno de Anotações | Bônus temporário de Conhecimento (próximo exame) | Quiz 50–79% | 2 por semestre |
 | Livro Técnico | Bônus permanente de Conhecimento vs. matéria específica | Quiz 80–100% | 1 por chefe |
-| Cola (item secreto) | Garante 1 resposta certa no exame — uso único | Evento especial | 1 por jogo |
+| Cola (item secreto) | Elimina duas alternativas no exame — uso único | Evento especial | 1 por jogo |
 
 ### 9.2 Regras do Inventário
 
