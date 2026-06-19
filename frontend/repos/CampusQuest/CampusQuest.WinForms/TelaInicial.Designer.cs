@@ -261,6 +261,7 @@
             opc6.TabIndex = 5;
             opc6.Text = "Usar item do inventario";
             opc6.UseVisualStyleBackColor = false;
+            opc6.Click += opc6_Click;
             // 
             // opc5
             // 
@@ -570,7 +571,8 @@
             // 
             // panelSalaExame
             // 
-            panelSalaExame.BackColor = Color.LimeGreen;
+            panelSalaExame.BackColor = Color.Transparent;
+            panelSalaExame.BackgroundImage = (Image)resources.GetObject("panelSalaExame.BackgroundImage");
             panelSalaExame.Controls.Add(lblVidaChefe);
             panelSalaExame.Controls.Add(lblVidaAluno);
             panelSalaExame.Controls.Add(lblMateria);
@@ -682,7 +684,7 @@
             // panelCoordenacao
             // 
             panelCoordenacao.BackColor = Color.Tan;
-            panelCoordenacao.BackgroundImage = Properties.Resources.salaProfessor;
+            panelCoordenacao.BackgroundImage = (Image)resources.GetObject("panelCoordenacao.BackgroundImage");
             panelCoordenacao.Controls.Add(rtbCoordenadora);
             panelCoordenacao.Controls.Add(btnPedirItemCoordenadora);
             panelCoordenacao.Controls.Add(btnPedirDicaCoordenadora);
@@ -695,6 +697,7 @@
             panelCoordenacao.Size = new Size(934, 651);
             panelCoordenacao.TabIndex = 12;
             panelCoordenacao.Visible = false;
+            panelCoordenacao.Paint += panelCoordenacao_Paint;
             // 
             // rtbCoordenadora
             // 
@@ -761,7 +764,7 @@
             // 
             Coordenadora.BackColor = Color.Transparent;
             Coordenadora.Image = (Image)resources.GetObject("Coordenadora.Image");
-            Coordenadora.Location = new Point(-123, 189);
+            Coordenadora.Location = new Point(-123, 204);
             Coordenadora.Name = "Coordenadora";
             Coordenadora.Size = new Size(386, 379);
             Coordenadora.TabIndex = 11;
@@ -774,12 +777,12 @@
             BackColor = Color.Gray;
             ClientSize = new Size(934, 651);
             Controls.Add(panelHall);
-            Controls.Add(panelMenu);
+            Controls.Add(panelSalaExame);
             Controls.Add(panelCoordenacao);
+            Controls.Add(panelMenu);
             Controls.Add(panelProfessor);
             Controls.Add(panelVeterano);
             Controls.Add(panelQuiz);
-            Controls.Add(panelSalaExame);
             Controls.Add(panelNome);
             Font = new Font("MV Boli", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             ForeColor = Color.White;

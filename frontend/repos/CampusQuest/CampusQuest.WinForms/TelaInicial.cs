@@ -778,6 +778,28 @@ namespace CampusQuest.WinForms
             panelMenu.Visible = true;
         }
 
-        
+        private void panelCoordenacao_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void opc6_Click(object sender, EventArgs e)
+        {
+            rtbMensagens.Clear();
+            rtbMensagens.AppendText("=== INVENTÁRIO ===\n\n");
+
+            var itens = alunoAtual.Inventario.ListarItens();
+
+            if (itens.Count == 0)
+            {
+                rtbMensagens.AppendText("Nenhum item.\n");
+                return;
+            }
+
+            foreach (CampusQuest.Itens.Item item in itens)
+            {
+                rtbMensagens.AppendText(item.Nome + "\n");
+            }
+        }
     }
 }
