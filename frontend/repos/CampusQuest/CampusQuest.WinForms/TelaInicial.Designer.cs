@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TelaInicial));
             label1 = new Label();
             btnNovoJogo = new Button();
             lblNome = new Label();
@@ -74,6 +75,13 @@
             btnExamB = new Button();
             btnExamC = new Button();
             btnExamD = new Button();
+            panelCoordenacao = new Panel();
+            rtbCoordenadora = new RichTextBox();
+            btnPedirItemCoordenadora = new Button();
+            btnPedirDicaCoordenadora = new Button();
+            btnTrancarSemestre = new Button();
+            btnVoltarCoordenadora = new Button();
+            Coordenadora = new PictureBox();
             panelMenu.SuspendLayout();
             panelNome.SuspendLayout();
             panelHall.SuspendLayout();
@@ -83,6 +91,8 @@
             panelProfessor.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             panelSalaExame.SuspendLayout();
+            panelCoordenacao.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)Coordenadora).BeginInit();
             SuspendLayout();
             // 
             // label1
@@ -263,6 +273,7 @@
             opc5.TabIndex = 4;
             opc5.Text = "Ver status e inventario";
             opc5.UseVisualStyleBackColor = false;
+            opc5.Click += opc5_Click;
             // 
             // opc4
             // 
@@ -275,6 +286,7 @@
             opc4.TabIndex = 3;
             opc4.Text = "Ir para sala da coordenacao";
             opc4.UseVisualStyleBackColor = false;
+            opc4.Click += opc4_Click;
             // 
             // opc3
             // 
@@ -667,15 +679,104 @@
             btnExamD.UseVisualStyleBackColor = false;
             btnExamD.Click += btnExamD_Click;
             // 
+            // panelCoordenacao
+            // 
+            panelCoordenacao.BackColor = Color.Tan;
+            panelCoordenacao.BackgroundImage = Properties.Resources.salaProfessor;
+            panelCoordenacao.Controls.Add(rtbCoordenadora);
+            panelCoordenacao.Controls.Add(btnPedirItemCoordenadora);
+            panelCoordenacao.Controls.Add(btnPedirDicaCoordenadora);
+            panelCoordenacao.Controls.Add(btnTrancarSemestre);
+            panelCoordenacao.Controls.Add(btnVoltarCoordenadora);
+            panelCoordenacao.Controls.Add(Coordenadora);
+            panelCoordenacao.ForeColor = Color.Transparent;
+            panelCoordenacao.Location = new Point(0, 0);
+            panelCoordenacao.Name = "panelCoordenacao";
+            panelCoordenacao.Size = new Size(934, 651);
+            panelCoordenacao.TabIndex = 12;
+            panelCoordenacao.Visible = false;
+            // 
+            // rtbCoordenadora
+            // 
+            rtbCoordenadora.Font = new Font("Calibri", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            rtbCoordenadora.Location = new Point(25, 501);
+            rtbCoordenadora.Name = "rtbCoordenadora";
+            rtbCoordenadora.Size = new Size(879, 79);
+            rtbCoordenadora.TabIndex = 7;
+            rtbCoordenadora.Text = "";
+            // 
+            // btnPedirItemCoordenadora
+            // 
+            btnPedirItemCoordenadora.BackColor = Color.Transparent;
+            btnPedirItemCoordenadora.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnPedirItemCoordenadora.ForeColor = Color.Black;
+            btnPedirItemCoordenadora.Location = new Point(25, 586);
+            btnPedirItemCoordenadora.Name = "btnPedirItemCoordenadora";
+            btnPedirItemCoordenadora.Size = new Size(200, 50);
+            btnPedirItemCoordenadora.TabIndex = 0;
+            btnPedirItemCoordenadora.Text = "Pedir item para a prova";
+            btnPedirItemCoordenadora.UseVisualStyleBackColor = false;
+            btnPedirItemCoordenadora.Click += btnPedirItemCoordenadora_Click;
+            // 
+            // btnPedirDicaCoordenadora
+            // 
+            btnPedirDicaCoordenadora.BackColor = Color.Transparent;
+            btnPedirDicaCoordenadora.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnPedirDicaCoordenadora.ForeColor = Color.Black;
+            btnPedirDicaCoordenadora.Location = new Point(249, 586);
+            btnPedirDicaCoordenadora.Name = "btnPedirDicaCoordenadora";
+            btnPedirDicaCoordenadora.Size = new Size(200, 50);
+            btnPedirDicaCoordenadora.TabIndex = 8;
+            btnPedirDicaCoordenadora.Text = "Pedir dica de estudo";
+            btnPedirDicaCoordenadora.UseVisualStyleBackColor = false;
+            btnPedirDicaCoordenadora.Click += btnPedirDicaCoordenadora_Click;
+            // 
+            // btnTrancarSemestre
+            // 
+            btnTrancarSemestre.BackColor = Color.Transparent;
+            btnTrancarSemestre.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnTrancarSemestre.ForeColor = Color.Black;
+            btnTrancarSemestre.Location = new Point(476, 586);
+            btnTrancarSemestre.Name = "btnTrancarSemestre";
+            btnTrancarSemestre.Size = new Size(200, 50);
+            btnTrancarSemestre.TabIndex = 9;
+            btnTrancarSemestre.Text = "Trancar semestre";
+            btnTrancarSemestre.UseVisualStyleBackColor = false;
+            btnTrancarSemestre.Click += btnTrancarSemestre_Click;
+            // 
+            // btnVoltarCoordenadora
+            // 
+            btnVoltarCoordenadora.BackColor = Color.Transparent;
+            btnVoltarCoordenadora.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnVoltarCoordenadora.ForeColor = Color.Black;
+            btnVoltarCoordenadora.Location = new Point(704, 586);
+            btnVoltarCoordenadora.Name = "btnVoltarCoordenadora";
+            btnVoltarCoordenadora.Size = new Size(200, 50);
+            btnVoltarCoordenadora.TabIndex = 10;
+            btnVoltarCoordenadora.Text = "Encerrar conversa";
+            btnVoltarCoordenadora.UseVisualStyleBackColor = false;
+            btnVoltarCoordenadora.Click += btnVoltarCoordenadora_Click;
+            // 
+            // Coordenadora
+            // 
+            Coordenadora.BackColor = Color.Transparent;
+            Coordenadora.Image = (Image)resources.GetObject("Coordenadora.Image");
+            Coordenadora.Location = new Point(-123, 189);
+            Coordenadora.Name = "Coordenadora";
+            Coordenadora.Size = new Size(386, 379);
+            Coordenadora.TabIndex = 11;
+            Coordenadora.TabStop = false;
+            // 
             // TelaInicial
             // 
             AutoScaleDimensions = new SizeF(8F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Gray;
             ClientSize = new Size(934, 651);
-            Controls.Add(panelMenu);
-            Controls.Add(panelProfessor);
             Controls.Add(panelHall);
+            Controls.Add(panelMenu);
+            Controls.Add(panelCoordenacao);
+            Controls.Add(panelProfessor);
             Controls.Add(panelVeterano);
             Controls.Add(panelQuiz);
             Controls.Add(panelSalaExame);
@@ -697,6 +798,8 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             panelSalaExame.ResumeLayout(false);
             panelSalaExame.PerformLayout();
+            panelCoordenacao.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)Coordenadora).EndInit();
             ResumeLayout(false);
         }
 
@@ -753,5 +856,16 @@
         private Label lblVidaChefe;
         private Label lblVidaAluno;
         private PictureBox pictureBox2;
+        private Panel panelCoordenacao;
+        private RichTextBox rtbCoordenadora;
+        private RichTextBox richTextBox1;
+        private Button button2;
+        private Button button3;
+        private Button button4;
+        private PictureBox Coordenadora;
+        private Button btnPedirItemCoordenadora;
+        private Button btnPedirDicaCoordenadora;
+        private Button btnTrancarSemestre;
+        private Button btnVoltarCoordenadora;
     }
 }
