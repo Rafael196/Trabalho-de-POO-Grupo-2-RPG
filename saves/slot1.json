@@ -1,28 +1,35 @@
 {
   "Versao": "1.0",
-  "DataSalvamento": "2026-06-14T23:37:45.1992466Z",
+  "DataSalvamento": "2026-06-19T02:21:14.5340134Z",
   "Aluno": {
-    "Nome": "RAFAE",
+    "Nome": "2",
     "VidaAtual": 100,
     "VidaMaxima": 100,
-    "Conhecimento": 40,
+    "Conhecimento": 0,
     "SemestreAtual": 2,
     "Habilidades": [
       "Foco IC"
     ],
     "Aproveitamentos": [
-      50,
+      54,
       0,
       0
     ],
-    "Inventario": [],
+    "Inventario": [
+      {
+        "Tipo": "Cola",
+        "Nome": "Cola",
+        "Descricao": "Garante um acerto na proxima pergunta do exame.",
+        "MateriaAlvo": ""
+      }
+    ],
     "CafesRecebidosSemestre": 0,
     "CadernosRecebidosSemestre": 0,
     "LivrosRecebidosSemestre": 0
   },
   "Estatisticas": null,
-  "NomeAluno": "RAFAE",
+  "NomeAluno": "2",
   "VidaAtual": 100,
-  "Conhecimento": 40,
+  "Conhecimento": 0,
   "SemestreAtual": 2
 }
