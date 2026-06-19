@@ -21,7 +21,14 @@ public static class EstadoJogoFactory
             NomeAluno = aluno.Nome ?? string.Empty,
             VidaAtual = aluno.Vida,
             Conhecimento = aluno.Conhecimento,
-            SemestreAtual = aluno.SemestreAtual
+            SemestreAtual = aluno.SemestreAtual,
+            Estatisticas = new Estatisticas
+            {
+                SemestresRepetidos = aluno.SemestresRepetidos,
+                QuizzesConcluidos = aluno.QuizzesConcluidos,
+                ItensUsados = aluno.ItensUsados,
+                BonusCoragemAplicado = aluno.BonusCoragemAplicado
+            }
         };
 
         estado.Aluno = new DadosAluno
@@ -52,6 +59,7 @@ public static class EstadoJogoFactory
         if (estado.Aluno != null)
         {
             AplicarDadosAluno(aluno, estado.Aluno);
+            AplicarEstatisticas(aluno, estado.Estatisticas);
             return;
         }
 
@@ -63,6 +71,7 @@ public static class EstadoJogoFactory
         aluno.AumentarConhecimento(Math.Max(0, estado.Conhecimento));
         AjustarVida(aluno, estado.VidaAtual);
         AjustarSemestre(aluno, estado.SemestreAtual);
+        AplicarEstatisticas(aluno, estado.Estatisticas);
     }
 
     private static void AplicarDadosAluno(Aluno aluno, DadosAluno dados)
@@ -102,6 +111,20 @@ public static class EstadoJogoFactory
             dados.LivrosRecebidosSemestre);
 
         AplicarHabilidadesSalvas(aluno, dados.Habilidades);
+    }
+
+    private static void AplicarEstatisticas(Aluno aluno, Estatisticas estatisticas)
+    {
+        if (aluno == null || estatisticas == null)
+        {
+            return;
+        }
+
+        aluno.DefinirEstatisticas(
+            estatisticas.SemestresRepetidos,
+            estatisticas.QuizzesConcluidos,
+            estatisticas.ItensUsados,
+            estatisticas.BonusCoragemAplicado);
     }
 
     private static void AjustarVida(Aluno aluno, int vidaAlvo)

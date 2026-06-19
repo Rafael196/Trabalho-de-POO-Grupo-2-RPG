@@ -8,6 +8,7 @@ public class JogoContexto
 {
     public Aluno AlunoAtivo { get; set; }
     public IRepositorio Repositorio { get; set; }
+    public IRepositorioQuestoes RepositorioQuestoes { get; set; }
     public IEstadoJogo EstadoAtual { get; private set; }
 
     private readonly IConsoleIO io;
@@ -39,6 +40,36 @@ public class JogoContexto
             }
 
             EstadoAtual.Executar(this);
+        }
+    }
+
+    public bool SalvarProgresso(bool exibirMensagem = false)
+    {
+        if (Repositorio == null || AlunoAtivo == null)
+        {
+            return false;
+        }
+
+        try
+        {
+            EstadoJogo estado = EstadoJogoFactory.Criar(AlunoAtivo);
+            Repositorio.Salvar(estado);
+
+            if (exibirMensagem)
+            {
+                io.WriteLine("Jogo salvo.");
+            }
+
+            return true;
+        }
+        catch
+        {
+            if (exibirMensagem)
+            {
+                io.WriteLine("Falha ao salvar o jogo.");
+            }
+
+            return false;
         }
     }
 

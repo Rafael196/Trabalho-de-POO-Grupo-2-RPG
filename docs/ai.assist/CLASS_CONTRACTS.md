@@ -30,19 +30,31 @@ public abstract class Personagem
 ```csharp
 public class Aluno : Personagem
 {
-    public Inventario Inventario          { get; private set; }
-    public List<Habilidade> Habilidades   { get; private set; }
-    public int SemestreAtual              { get; private set; }  // 1, 2 ou 3
-    public int[] Aproveitamentos          { get; private set; }  // [0..2], escala 0-100
-    public bool BonusCoragemAplicado      { get; private set; }
+    public string Nome                     { get; private set; }
+    public Inventario Inventario           { get; private set; }
+    public List<Habilidade> Habilidades    { get; private set; }
+    public int SemestreAtual               { get; private set; }  // 1, 2 ou 3
+    public int[] Aproveitamentos           { get; private set; }  // [0..2], escala 0-100
+    public bool BonusCoragemAplicado       { get; private set; }
+    public bool ColaAtiva                  { get; private set; }
+    public int CafesRecebidosSemestre      { get; private set; }
+    public int CadernosRecebidosSemestre   { get; private set; }
+    public int LivrosRecebidosSemestre     { get; private set; }
 
+    public void DefinirNome(string nome);
     public override void Atacar(Personagem alvo);
     public void AdicionarHabilidade(Habilidade h);
+    public bool PossuiHabilidade(string nome);
     public void RegistrarAproveitamento(int semestre, int valor); // semestre 1-3
     public float GetMediaFinal();                                 // média dos 3 aproveitamentos
     public void AumentarConhecimento(int quantidade);
     public void AvancarSemestre();
     public bool SemestresCompletos();                             // retorna SemestreAtual > 3
+    public void AtivarCola();
+    public void DesativarCola();
+    public bool PodeReceberItem(Item item);
+    public void RegistrarItemRecebido(Item item);
+    public void DefinirContagemItensSemestre(int cafes, int cadernos, int livros);
 }
 ```
 
@@ -158,6 +170,10 @@ public abstract class NPC
 
     public abstract void Interagir(Aluno aluno);
     public abstract string GetDialogo();   // retorna linha de diálogo atual
+    public virtual string GetMensagemAbertura(Aluno aluno);
+    public virtual string ObterDica(Aluno aluno);
+    public virtual Item SolicitarItem(Aluno aluno);
+    public virtual string MensagemItemIndisponivel(Aluno aluno);
 }
 ```
 
@@ -166,10 +182,14 @@ public abstract class NPC
 public class Professor : NPC
 {
     public override void Interagir(Aluno aluno);
+    public override string GetMensagemAbertura(Aluno aluno);
     public bool SugerirQuiz();                              // retorna true se aluno aceitar
     public int EscolherSemestreQuiz(int semestreAtual);     // retorna semestre escolhido (1-3)
     public ResultadoQuiz AplicarQuiz(Aluno aluno, int semestre);
     public override string GetDialogo();
+    public override string ObterDica(Aluno aluno);
+    public override Item SolicitarItem(Aluno aluno);
+    public override string MensagemItemIndisponivel(Aluno aluno);
 }
 ```
 
@@ -178,9 +198,12 @@ public class Professor : NPC
 public class Veterano : NPC
 {
     public override void Interagir(Aluno aluno);
+    public override string GetMensagemAbertura(Aluno aluno);
     public string DarDica(int semestreAtual);   // dica temática sobre o chefe atual
     public Item OfereceItem();                  // retorna item disponível para o aluno
     public override string GetDialogo();
+    public override string ObterDica(Aluno aluno);
+    public override Item SolicitarItem(Aluno aluno);
 }
 ```
 
@@ -189,8 +212,12 @@ public class Veterano : NPC
 public class Coordenador : NPC
 {
     public override void Interagir(Aluno aluno);
+    public override string GetMensagemAbertura(Aluno aluno);
     public bool TrancarSemestre(Aluno aluno, IRepositorio repo); // salva e retorna ao menu
     public override string GetDialogo();
+    public override string ObterDica(Aluno aluno);
+    public override Item SolicitarItem(Aluno aluno);
+    public override string MensagemItemIndisponivel(Aluno aluno);
 }
 ```
 
@@ -239,6 +266,15 @@ public class LivroTecnico : Item
 
     public LivroTecnico(string materiaAlvo);
     public override void Usar(Aluno aluno);      // +20 Conhecimento permanente vs matéria alvo
+    public override string GetDescricaoEfeito();
+}
+```
+
+### `Cola` — `src/Itens/Cola.cs`
+```csharp
+public class Cola : Item
+{
+    public override void Usar(Aluno aluno);      // ativa acerto garantido na próxima pergunta do exame
     public override string GetDescricaoEfeito();
 }
 ```
@@ -349,18 +385,26 @@ public class EstadoJogo
     public DateTime DataSalvamento   { get; set; }
     public DadosAluno Aluno          { get; set; }
     public Estatisticas Estatisticas { get; set; }
+
+    public string NomeAluno          { get; set; }
+    public int VidaAtual             { get; set; }
+    public int Conhecimento          { get; set; }
+    public int SemestreAtual         { get; set; }
 }
 
 public class DadosAluno
 {
-    public string Nome               { get; set; }
-    public int VidaAtual             { get; set; }
-    public int VidaMaxima            { get; set; }
-    public int Conhecimento          { get; set; }
-    public int SemestreAtual         { get; set; }
-    public List<string> Habilidades  { get; set; }
-    public int[] Aproveitamentos     { get; set; }  // [3]
-    public List<ItemSalvo> Inventario{ get; set; }
+    public string Nome                { get; set; }
+    public int VidaAtual              { get; set; }
+    public int VidaMaxima             { get; set; }
+    public int Conhecimento           { get; set; }
+    public int SemestreAtual          { get; set; }
+    public List<string> Habilidades   { get; set; }
+    public int[] Aproveitamentos      { get; set; }  // [3]
+    public List<ItemSalvo> Inventario { get; set; }
+    public int CafesRecebidosSemestre    { get; set; }
+    public int CadernosRecebidosSemestre { get; set; }
+    public int LivrosRecebidosSemestre   { get; set; }
 }
 
 public class Estatisticas
@@ -376,10 +420,10 @@ public class Estatisticas
 ```csharp
 public class RepositorioJson : IRepositorio
 {
-    public RepositorioJson(string caminhoArquivo = "saves/save.json");
+    public RepositorioJson(string caminhoArquivo);
 
     public void Salvar(EstadoJogo estado);      // serializa JSON formatado
-    public EstadoJogo Carregar();               // lança FileNotFoundException se não existe
+    public EstadoJogo Carregar();               // lança InvalidOperationException se não existe
     public bool ExisteArquivo();
     public void Deletar();
 }
@@ -418,30 +462,199 @@ public class JogoContexto
 - `EstadoExame` — Exame de Aproveitamento em andamento
 - `EstadoGameOver` — derrota no TCC
 - `EstadoVitoria` — vitória no TCC com estatísticas
+- `EstadoSair` (interno em `JogoContexto`) — encerra o loop principal
 
 ---
 
 ## UI Console
 
-### `MenuConsole` — `src/UI/Console/MenuConsole.cs`
+### `IConsoleIO` (interface) — `src/UI/IConsoleIO.cs`
 ```csharp
-public static class MenuConsole
+public interface IConsoleIO
 {
-    public static int ExibirOpcoes(string titulo, string[] opcoes);
-    // Exibe menu numerado, valida input, retorna índice escolhido (0-based)
-
-    public static void ExibirStatus(Aluno aluno);
-    // Exibe vida, conhecimento, semestre atual, aproveitamentos e habilidades
-
-    public static void ExibirMensagem(string mensagem, TipoMensagem tipo);
-    // TipoMensagem: Info, Sucesso, Erro, Alerta
-
-    public static string LerEntrada(string prompt);
-    // Lê string com validação de nulo/vazio
-
-    public static void Limpar();
-    public static void Pausar(string mensagem = "Pressione qualquer tecla para continuar...");
+    void WriteLine(string mensagem);
+    void Write(string mensagem);
+    void WriteLineCor(string mensagem, ConsoleColor cor);
+    string ReadLine();
+    ConsoleKeyInfo ReadKey();
+    void Clear();
+    void SetCursorPosition(int left, int top);
+    void ExibirTitulo(string titulo);
+    void ExibirSeparador();
+    void ExibirMensagemSucesso(string mensagem);
+    void ExibirMensagemErro(string mensagem);
+    void ExibirMensagemAlerta(string mensagem);
+    void Pausar(string mensagem = "Pressione qualquer tecla para continuar...");
+    int ExibirMenu(string[] opcoes);
 }
+```
 
-public enum TipoMensagem { Info, Sucesso, Erro, Alerta }
+### `ConsoleIO` — `src/UI/ConsoleIO.cs`
+```csharp
+public class ConsoleIO : IConsoleIO
+{
+    public void WriteLine(string mensagem);
+    public void Write(string mensagem);
+    public void WriteLineCor(string mensagem, ConsoleColor cor);
+    public string ReadLine();
+    public ConsoleKeyInfo ReadKey();
+    public void Clear();
+    public void SetCursorPosition(int left, int top);
+    public void ExibirTitulo(string titulo);
+    public void ExibirSeparador();
+    public void ExibirMensagemSucesso(string mensagem);
+    public void ExibirMensagemErro(string mensagem);
+    public void ExibirMensagemAlerta(string mensagem);
+    public void Pausar(string mensagem = "Pressione qualquer tecla para continuar...");
+    public int ExibirMenu(string[] opcoes);  // retorna índice escolhido (0-based)
+}
+```
+
+---
+
+## Eventos (padrão Observer)
+
+### `IEventoJogo` (interface marcadora) — `src/Eventos/IEventoJogo.cs`
+```csharp
+public interface IEventoJogo
+{
+    // Interface marcadora para eventos do sistema
+}
+```
+
+### `IObservadorJogo<T>` (interface genérica) — `src/Eventos/IObservadorJogo.cs`
+```csharp
+public interface IObservadorJogo<in T> where T : IEventoJogo
+{
+    void OnEvento(T evento);
+}
+```
+
+### `EventoBus` — `src/Eventos/EventoBus.cs`
+```csharp
+public static class EventoBus
+{
+    public static void Inscrever<T>(Action<T> handler) where T : IEventoJogo;
+    public static void Desinscrever<T>(Action<T> handler) where T : IEventoJogo;
+    public static void Publicar<T>(T evento) where T : IEventoJogo;
+    public static void LimparTodos();
+}
+```
+
+### `ItemAdquiridoEvento` — `src/Eventos/ItemAdquiridoEvento.cs`
+```csharp
+public class ItemAdquiridoEvento : IEventoJogo
+{
+    public Item Item { get; }
+    public string NomeAluno { get; }
+    
+    public ItemAdquiridoEvento(Item item, string nomeAluno);
+}
+```
+
+### `HabilidadeDesbloqueadaEvento` — `src/Eventos/HabilidadeDesbloqueadaEvento.cs`
+```csharp
+public class HabilidadeDesbloqueadaEvento : IEventoJogo
+{
+    public Habilidade Habilidade { get; }
+    public string NomeAluno { get; }
+    
+    public HabilidadeDesbloqueadaEvento(Habilidade habilidade, string nomeAluno);
+}
+```
+
+---
+
+## Persistência (Extensões SQLite)
+
+### `IRepositorioQuestoes` (interface) — `src/Persistencia/IRepositorioQuestoes.cs`
+```csharp
+public interface IRepositorioQuestoes
+{
+    List<Pergunta> BuscarPorSemestreEMateria(int semestre, string materia, string tipo);
+    void Inserir(QuestaoDto questao);
+    void Atualizar(QuestaoDto questao);
+    void Deletar(int id);
+    List<QuestaoDto> ListarTodas();
+}
+```
+
+### `SqliteRepositorioSave` — `src/Persistencia/SqliteRepositorioSave.cs`
+```csharp
+public class SqliteRepositorioSave : IRepositorio
+{
+    public SqliteRepositorioSave(string caminhoDb = "database/campusquest.db");
+    
+    public void Salvar(EstadoJogo estado);
+    public EstadoJogo Carregar();
+    public bool ExisteArquivo();
+    public void Deletar();
+}
+```
+
+### `SqliteRepositorioQuestoes` — `src/Persistencia/SqliteRepositorioQuestoes.cs`
+```csharp
+public class SqliteRepositorioQuestoes : IRepositorioQuestoes
+{
+    public SqliteRepositorioQuestoes(string caminhoDb = "database/campusquest.db");
+    
+    public List<Pergunta> BuscarPorSemestreEMateria(int semestre, string materia, string tipo);
+    public void Inserir(QuestaoDto questao);
+    public void Atualizar(QuestaoDto questao);
+    public void Deletar(int id);
+    public List<QuestaoDto> ListarTodas();
+}
+```
+
+### `DatabaseInitializer` — `src/Persistencia/DatabaseInitializer.cs`
+```csharp
+public static class DatabaseInitializer
+{
+    public static void Inicializar();                          // cria schema + seed
+    private static void EnsureDatabaseDirectory();             // garante diretório database/
+    private static void CriarSchemaSeNaoExistir();             // cria tabelas Questoes, SaveJogo
+    private static void SeedQuestoesSeVazio();                 // insere 30+ questões padrão
+}
+```
+
+### `EstadoJogoFactory` — `src/Persistencia/EstadoJogoFactory.cs`
+```csharp
+public static class EstadoJogoFactory
+{
+    public static EstadoJogo CriarDe(Aluno aluno);             // Aluno → EstadoJogo
+    public static Aluno RestaurarAluno(EstadoJogo estado);     // EstadoJogo → Aluno
+}
+```
+
+### `QuestaoDto` — `src/Persistencia/QuestaoDto.cs`
+```csharp
+public class QuestaoDto
+{
+    public int Id { get; set; }
+    public string Enunciado { get; set; }
+    public string[] Alternativas { get; set; }       // sempre 4
+    public int IndiceCorreto { get; set; }           // 0-3
+    public string Explicacao { get; set; }
+    public int Semestre { get; set; }                // 1-4
+    public string Materia { get; set; }              // IC, AED, POO, TCC
+    public string Tipo { get; set; }                 // Quiz ou Exame
+    public string Dificuldade { get; set; }          // Normal, Media, Dificil
+    public bool Ativa { get; set; }                  // flag para desativar sem deletar
+}
+```
+
+---
+
+## Core (Extensões)
+
+### `HabilidadeCatalogo` — `src/Core/HabilidadeCatalogo.cs`
+```csharp
+public static class HabilidadeCatalogo
+{
+    public static Habilidade FocoIC { get; }           // aumenta dano contra IC
+    public static Habilidade FocoAED { get; }          // aumenta dano contra AED
+    public static Habilidade FocoPOO { get; }          // aumenta dano contra POO
+    
+    public static Habilidade ObterPorNome(string nome);
+}
 ```

@@ -10,11 +10,21 @@ internal static class Program
 {
     private static void Main()
     {
+        // Inicializar banco de dados
+        DatabaseInitializer.Inicializar();
+
         IConsoleIO io = new ConsoleIO();
         RegistrarObservadores(io);
+
+        // Criar repositórios
+        IRepositorioQuestoes repositorioQuestoes = new SqliteRepositorioQuestoes("database/campusquest.db");
+        IRepositorio repositorioSave = new SqliteRepositorioSave("database/campusquest.db");
+
+        // Montar contexto com injeções
         JogoContexto contexto = new JogoContexto(io)
         {
-            Repositorio = new RepositorioJson(Path.Combine("saves", "slot1.json"))
+            Repositorio = repositorioSave,
+            RepositorioQuestoes = repositorioQuestoes
         };
 
         contexto.Iniciar();

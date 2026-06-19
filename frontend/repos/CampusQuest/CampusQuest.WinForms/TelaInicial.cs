@@ -9,6 +9,8 @@ using CampusQuest.NPCs;
 using CampusQuest.Persistencia;
 using CampusQuest.Quiz;
 using CampusQuest.Estados;
+using CampusQuest.Itens;
+
 
 namespace CampusQuest.WinForms
 {
@@ -57,6 +59,7 @@ namespace CampusQuest.WinForms
         public TelaInicial()
         {
             InitializeComponent();
+            repositorioQuestoes = new SqliteRepositorioQuestoes();
         }
 
         private void TelaInicial_Load(object sender, EventArgs e)
@@ -174,7 +177,7 @@ namespace CampusQuest.WinForms
             panelProfessor.Visible = true;
             panelProfessor.BringToFront();
 
-            Professor professor = new Professor();
+            Professor professor = new Professor(repositorioQuestoes);
             rtbProfessor.Clear();
             rtbProfessor.AppendText(professor.GetMensagemAbertura(alunoAtual));
         }
@@ -183,7 +186,7 @@ namespace CampusQuest.WinForms
         {
             if (alunoAtual == null) return;
 
-            Professor professor = new Professor();
+            Professor professor = new Professor(repositorioQuestoes);
             string mensagem = professor.MensagemItemIndisponivel(alunoAtual);
 
             rtbProfessor.Clear();
@@ -194,7 +197,7 @@ namespace CampusQuest.WinForms
         {
             if (alunoAtual == null) return;
 
-            Professor professor = new Professor();
+            Professor professor = new Professor(repositorioQuestoes);
             string dica = professor.ObterDica(alunoAtual);
 
             rtbProfessor.Clear();

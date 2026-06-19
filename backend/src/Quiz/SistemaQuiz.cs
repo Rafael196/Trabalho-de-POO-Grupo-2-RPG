@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Aluno = CampusQuest.Core.Aluno;
 using GameItem = CampusQuest.Itens.Item;
 
 using CampusQuest.Core;
 using CampusQuest.Itens;
+using CampusQuest.Persistencia;
 using CampusQuest.UI;
 
 namespace CampusQuest.Quiz;
@@ -12,12 +14,13 @@ namespace CampusQuest.Quiz;
 public class SistemaQuiz
 {
     private const int GanhoBaseConhecimento = 10;
-    private static readonly Dictionary<int, Pergunta[]> BancoPerguntas = CriarBancoPerguntas();
     private static readonly Random Rng = new();
     private readonly IConsoleIO io;
+    private readonly IRepositorioQuestoes repositorioQuestoes;
 
-    public SistemaQuiz(IConsoleIO? io = null)
+    public SistemaQuiz(IRepositorioQuestoes repositorioQuestoes, IConsoleIO? io = null)
     {
+        this.repositorioQuestoes = repositorioQuestoes ?? throw new ArgumentNullException(nameof(repositorioQuestoes));
         this.io = io ?? new ConsoleIO();
     }
 
@@ -71,6 +74,7 @@ public class SistemaQuiz
         int ganhoConhecimento = acertos * GanhoBaseConhecimento * (revisao ? 50 : 100) / 100;
 
         aluno.AumentarConhecimento(ganhoConhecimento);
+        aluno.RegistrarQuizConcluido();
 
         GameItem itemDropado = CriarItemPorFaixa(aproveitamento, semestreNormalizado);
         if (itemDropado != null)
@@ -120,51 +124,25 @@ public class SistemaQuiz
         };
     }
 
-    private static Dictionary<int, Pergunta[]> CriarBancoPerguntas()
+    private Pergunta[] ObterPerguntasAleatorias(int semestre)
     {
-        return new Dictionary<int, Pergunta[]>
-        {
-            [1] = new[]
-            {
-                new Pergunta("O que é hardware?", new[] { "Parte física", "Programa", "Rede", "Arquivo" }, 0, "Hardware é a parte física.") ,
-                new Pergunta("O que é software?", new[] { "Programa", "Placa", "Teclado", "Memória" }, 0, "Software é o conjunto de programas."),
-                new Pergunta("Qual sistema gerencia recursos do computador?", new[] { "Sistema operacional", "Editor", "Navegador", "Jogos" }, 0, "O sistema operacional gerencia recursos."),
-                new Pergunta("Qual número representa binário?", new[] { "0 e 1", "2 e 3", "5 e 6", "8 e 9" }, 0, "Binário usa 0 e 1."),
-                new Pergunta("Qual dispositivo conecta redes?", new[] { "Roteador", "Mouse", "Monitor", "Teclado" }, 0, "Roteador conecta redes diferentes.")
-            },
-            [2] = new[]
-            {
-                new Pergunta("Pilha segue qual regra?", new[] { "LIFO", "FIFO", "ABC", "XYZ" }, 0, "Pilha é LIFO."),
-                new Pergunta("Fila segue qual regra?", new[] { "FIFO", "LIFO", "DFS", "BFS" }, 0, "Fila é FIFO."),
-                new Pergunta("Busca binária exige dados:", new[] { "Ordenados", "Aleatórios", "Vazios", "Repetidos" }, 0, "Busca binária exige ordenação."),
-                new Pergunta("Complexidade O(n) indica crescimento:", new[] { "Linear", "Constante", "Quadrático", "Logarítmico" }, 0, "O(n) é linear."),
-                new Pergunta("Qual estrutura combina recursão?", new[] { "Pilha", "Fila", "Lista", "Matriz" }, 0, "Recursão usa pilha de execução.")
-            },
-            [3] = new[]
-            {
-                new Pergunta("Encapsulamento controla:", new[] { "Acesso aos dados", "Rede", "Compilação", "Memória" }, 0, "Encapsulamento controla acesso."),
-                new Pergunta("Herança permite:", new[] { "Reuso", "Apagar dados", "Acelerar CPU", "Criar rede" }, 0, "Herança promove reuso."),
-                new Pergunta("Polimorfismo significa:", new[] { "Mesmo método com comportamentos diferentes", "Só um construtor", "Sem classes", "Sem objetos" }, 0, "Polimorfismo altera comportamento."),
-                new Pergunta("Abstração é:", new[] { "Focar no essencial", "Duplicar código", "Evitar classes", "Criar bugs" }, 0, "Abstração foca no essencial."),
-                new Pergunta("Objeto é:", new[] { "Instância de classe", "Método", "Interface", "Namespace" }, 0, "Objeto é uma instância.")
-            }
-        };
-    }
-
-    private static Pergunta[] ObterPerguntasAleatorias(int semestre)
-    {
-        if (!BancoPerguntas.TryGetValue(semestre, out Pergunta[] perguntasBase))
+        var questoes = repositorioQuestoes.ObterPorSemestre(semestre).ToList();
+        
+        if (questoes.Count == 0)
         {
             return Array.Empty<Pergunta>();
         }
 
-        Pergunta[] copia = (Pergunta[])perguntasBase.Clone();
-        for (int i = copia.Length - 1; i > 0; i--)
+        // Embaralhar questões
+        for (int i = questoes.Count - 1; i > 0; i--)
         {
             int j = Rng.Next(i + 1);
-            (copia[i], copia[j]) = (copia[j], copia[i]);
+            (questoes[i], questoes[j]) = (questoes[j], questoes[i]);
         }
 
-        return copia;
+        // Converter QuestaoDto para Pergunta
+        return questoes
+            .Select(q => new Pergunta(q.Enunciado, q.Alternativas, q.IndiceCorreto, q.Explicacao))
+            .ToArray();
     }
 }
