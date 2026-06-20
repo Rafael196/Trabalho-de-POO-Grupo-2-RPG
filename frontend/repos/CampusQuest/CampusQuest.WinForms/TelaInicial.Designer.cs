@@ -63,12 +63,35 @@
             btnAltB = new Button();
             btnAltC = new Button();
             btnAltD = new Button();
+            panelSalaExame = new Panel();
+            lblMateria = new Label();
+            lblVidaAluno = new Label();
+            lblVidaChefe = new Label();
+            rtbExame = new RichTextBox();
+            btnExamA = new Button();
+            btnExamB = new Button();
+            btnExamC = new Button();
+            btnExamD = new Button();
+            panelCoordenacao = new Panel();
+            rtbCoordenadora = new RichTextBox();
+            btnPedirItemCoordenadora = new Button();
+            btnPedirDicaCoordenadora = new Button();
+            btnTrancarSemestre = new Button();
+            btnVoltarCoordenadora = new Button();
+            panelVitoria = new Panel();
+            lblVitoriaTitle = new Label();
+            lblVitoriaSubtitle = new Label();
+            rtbVitoriaStats = new RichTextBox();
+            btnVoltarMenuVitoria = new Button();
             panelMenu.SuspendLayout();
             panelNome.SuspendLayout();
             panelHall.SuspendLayout();
             panelVeterano.SuspendLayout();
             panelProfessor.SuspendLayout();
             panelQuiz.SuspendLayout();
+            panelSalaExame.SuspendLayout();
+            panelCoordenacao.SuspendLayout();
+            panelVitoria.SuspendLayout();
             SuspendLayout();
             // 
             // label1
@@ -223,7 +246,8 @@
             opc7.TabIndex = 6;
             opc7.Text = "7) Voltar ao menu";
             opc7.UseVisualStyleBackColor = false;
-            // 
+            opc7.Click += opc7_Click;
+            //
             // opc6
             // 
             opc6.BackColor = Color.Transparent;
@@ -235,7 +259,8 @@
             opc6.TabIndex = 5;
             opc6.Text = "6) Usar item do inventario";
             opc6.UseVisualStyleBackColor = false;
-            // 
+            opc6.Click += opc6_Click;
+            //
             // opc5
             // 
             opc5.BackColor = Color.Transparent;
@@ -247,7 +272,8 @@
             opc5.TabIndex = 4;
             opc5.Text = "5) Ver status e inventario";
             opc5.UseVisualStyleBackColor = false;
-            // 
+            opc5.Click += opc5_Click;
+            //
             // opc4
             // 
             opc4.BackColor = Color.Transparent;
@@ -259,7 +285,8 @@
             opc4.TabIndex = 3;
             opc4.Text = "4) Ir para sala da coordenacao (trancar semestre)";
             opc4.UseVisualStyleBackColor = false;
-            // 
+            opc4.Click += opc4_Click;
+            //
             // opc3
             // 
             opc3.BackColor = Color.Transparent;
@@ -514,9 +541,273 @@
             btnAltD.Text = "4";
             btnAltD.UseVisualStyleBackColor = false;
             btnAltD.Click += btnAltD_Click;
-            // 
+            //
+            // panelSalaExame
+            //
+            panelSalaExame.BackColor = Color.FromArgb(30, 30, 60);
+            panelSalaExame.Controls.Add(lblMateria);
+            panelSalaExame.Controls.Add(lblVidaAluno);
+            panelSalaExame.Controls.Add(lblVidaChefe);
+            panelSalaExame.Controls.Add(rtbExame);
+            panelSalaExame.Controls.Add(btnExamA);
+            panelSalaExame.Controls.Add(btnExamB);
+            panelSalaExame.Controls.Add(btnExamC);
+            panelSalaExame.Controls.Add(btnExamD);
+            panelSalaExame.Location = new Point(0, 0);
+            panelSalaExame.Name = "panelSalaExame";
+            panelSalaExame.Size = new Size(934, 651);
+            panelSalaExame.TabIndex = 12;
+            panelSalaExame.Visible = false;
+            //
+            // lblMateria
+            //
+            lblMateria.AutoSize = false;
+            lblMateria.BackColor = Color.Transparent;
+            lblMateria.Font = new Font("Impact", 24F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblMateria.ForeColor = Color.Gold;
+            lblMateria.Location = new Point(0, 15);
+            lblMateria.Name = "lblMateria";
+            lblMateria.Size = new Size(934, 40);
+            lblMateria.TabIndex = 0;
+            lblMateria.Text = "Matéria";
+            lblMateria.TextAlign = ContentAlignment.MiddleCenter;
+            //
+            // lblVidaAluno
+            //
+            lblVidaAluno.AutoSize = false;
+            lblVidaAluno.BackColor = Color.Transparent;
+            lblVidaAluno.Font = new Font("Impact", 14F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblVidaAluno.ForeColor = Color.LightGreen;
+            lblVidaAluno.Location = new Point(25, 65);
+            lblVidaAluno.Name = "lblVidaAluno";
+            lblVidaAluno.Size = new Size(280, 30);
+            lblVidaAluno.TabIndex = 1;
+            lblVidaAluno.Text = "Aluno: 100/100";
+            //
+            // lblVidaChefe
+            //
+            lblVidaChefe.AutoSize = false;
+            lblVidaChefe.BackColor = Color.Transparent;
+            lblVidaChefe.Font = new Font("Impact", 14F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblVidaChefe.ForeColor = Color.Tomato;
+            lblVidaChefe.Location = new Point(629, 65);
+            lblVidaChefe.Name = "lblVidaChefe";
+            lblVidaChefe.Size = new Size(280, 30);
+            lblVidaChefe.TabIndex = 2;
+            lblVidaChefe.Text = "Chefe: 100/100";
+            lblVidaChefe.TextAlign = ContentAlignment.MiddleRight;
+            //
+            // rtbExame
+            //
+            rtbExame.BackColor = Color.FromArgb(20, 20, 50);
+            rtbExame.Font = new Font("Calibri", 13F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            rtbExame.ForeColor = Color.White;
+            rtbExame.Location = new Point(25, 110);
+            rtbExame.Name = "rtbExame";
+            rtbExame.ReadOnly = true;
+            rtbExame.Size = new Size(879, 355);
+            rtbExame.TabIndex = 3;
+            rtbExame.Text = "";
+            //
+            // btnExamA
+            //
+            btnExamA.BackColor = Color.DimGray;
+            btnExamA.FlatStyle = FlatStyle.Flat;
+            btnExamA.Font = new Font("Impact", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnExamA.ForeColor = Color.White;
+            btnExamA.Location = new Point(25, 478);
+            btnExamA.Name = "btnExamA";
+            btnExamA.Size = new Size(200, 50);
+            btnExamA.TabIndex = 4;
+            btnExamA.Text = "A";
+            btnExamA.UseVisualStyleBackColor = false;
+            btnExamA.Click += btnExamA_Click;
+            //
+            // btnExamB
+            //
+            btnExamB.BackColor = Color.DimGray;
+            btnExamB.FlatStyle = FlatStyle.Flat;
+            btnExamB.Font = new Font("Impact", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnExamB.ForeColor = Color.White;
+            btnExamB.Location = new Point(249, 478);
+            btnExamB.Name = "btnExamB";
+            btnExamB.Size = new Size(200, 50);
+            btnExamB.TabIndex = 5;
+            btnExamB.Text = "B";
+            btnExamB.UseVisualStyleBackColor = false;
+            btnExamB.Click += btnExamB_Click;
+            //
+            // btnExamC
+            //
+            btnExamC.BackColor = Color.DimGray;
+            btnExamC.FlatStyle = FlatStyle.Flat;
+            btnExamC.Font = new Font("Impact", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnExamC.ForeColor = Color.White;
+            btnExamC.Location = new Point(476, 478);
+            btnExamC.Name = "btnExamC";
+            btnExamC.Size = new Size(200, 50);
+            btnExamC.TabIndex = 6;
+            btnExamC.Text = "C";
+            btnExamC.UseVisualStyleBackColor = false;
+            btnExamC.Click += btnExamC_Click;
+            //
+            // btnExamD
+            //
+            btnExamD.BackColor = Color.DimGray;
+            btnExamD.FlatStyle = FlatStyle.Flat;
+            btnExamD.Font = new Font("Impact", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnExamD.ForeColor = Color.White;
+            btnExamD.Location = new Point(704, 478);
+            btnExamD.Name = "btnExamD";
+            btnExamD.Size = new Size(200, 50);
+            btnExamD.TabIndex = 7;
+            btnExamD.Text = "D";
+            btnExamD.UseVisualStyleBackColor = false;
+            btnExamD.Click += btnExamD_Click;
+            //
+            // panelCoordenacao
+            //
+            panelCoordenacao.BackColor = Color.SteelBlue;
+            panelCoordenacao.Controls.Add(rtbCoordenadora);
+            panelCoordenacao.Controls.Add(btnPedirItemCoordenadora);
+            panelCoordenacao.Controls.Add(btnPedirDicaCoordenadora);
+            panelCoordenacao.Controls.Add(btnTrancarSemestre);
+            panelCoordenacao.Controls.Add(btnVoltarCoordenadora);
+            panelCoordenacao.Location = new Point(0, 0);
+            panelCoordenacao.Name = "panelCoordenacao";
+            panelCoordenacao.Size = new Size(934, 651);
+            panelCoordenacao.TabIndex = 13;
+            panelCoordenacao.Visible = false;
+            panelCoordenacao.Paint += panelCoordenacao_Paint;
+            //
+            // rtbCoordenadora
+            //
+            rtbCoordenadora.Font = new Font("Calibri", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            rtbCoordenadora.Location = new Point(25, 420);
+            rtbCoordenadora.Name = "rtbCoordenadora";
+            rtbCoordenadora.Size = new Size(879, 79);
+            rtbCoordenadora.TabIndex = 0;
+            rtbCoordenadora.Text = "";
+            //
+            // btnPedirItemCoordenadora
+            //
+            btnPedirItemCoordenadora.BackColor = Color.Transparent;
+            btnPedirItemCoordenadora.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnPedirItemCoordenadora.ForeColor = Color.Black;
+            btnPedirItemCoordenadora.Location = new Point(25, 510);
+            btnPedirItemCoordenadora.Name = "btnPedirItemCoordenadora";
+            btnPedirItemCoordenadora.Size = new Size(200, 50);
+            btnPedirItemCoordenadora.TabIndex = 1;
+            btnPedirItemCoordenadora.Text = "1) Pedir item";
+            btnPedirItemCoordenadora.UseVisualStyleBackColor = false;
+            btnPedirItemCoordenadora.Click += btnPedirItemCoordenadora_Click;
+            //
+            // btnPedirDicaCoordenadora
+            //
+            btnPedirDicaCoordenadora.BackColor = Color.Transparent;
+            btnPedirDicaCoordenadora.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnPedirDicaCoordenadora.ForeColor = Color.Black;
+            btnPedirDicaCoordenadora.Location = new Point(249, 510);
+            btnPedirDicaCoordenadora.Name = "btnPedirDicaCoordenadora";
+            btnPedirDicaCoordenadora.Size = new Size(200, 50);
+            btnPedirDicaCoordenadora.TabIndex = 2;
+            btnPedirDicaCoordenadora.Text = "2) Pedir dica";
+            btnPedirDicaCoordenadora.UseVisualStyleBackColor = false;
+            btnPedirDicaCoordenadora.Click += btnPedirDicaCoordenadora_Click;
+            //
+            // btnTrancarSemestre
+            //
+            btnTrancarSemestre.BackColor = Color.Transparent;
+            btnTrancarSemestre.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnTrancarSemestre.ForeColor = Color.Black;
+            btnTrancarSemestre.Location = new Point(476, 510);
+            btnTrancarSemestre.Name = "btnTrancarSemestre";
+            btnTrancarSemestre.Size = new Size(200, 50);
+            btnTrancarSemestre.TabIndex = 3;
+            btnTrancarSemestre.Text = "3) Trancar semestre";
+            btnTrancarSemestre.UseVisualStyleBackColor = false;
+            btnTrancarSemestre.Click += btnTrancarSemestre_Click;
+            //
+            // btnVoltarCoordenadora
+            //
+            btnVoltarCoordenadora.BackColor = Color.Transparent;
+            btnVoltarCoordenadora.Font = new Font("Impact", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnVoltarCoordenadora.ForeColor = Color.Black;
+            btnVoltarCoordenadora.Location = new Point(704, 510);
+            btnVoltarCoordenadora.Name = "btnVoltarCoordenadora";
+            btnVoltarCoordenadora.Size = new Size(200, 50);
+            btnVoltarCoordenadora.TabIndex = 4;
+            btnVoltarCoordenadora.Text = "4) Encerrar";
+            btnVoltarCoordenadora.UseVisualStyleBackColor = false;
+            btnVoltarCoordenadora.Click += btnVoltarCoordenadora_Click;
+            //
+            // panelVitoria
+            //
+            panelVitoria.BackColor = Color.FromArgb(15, 15, 50);
+            panelVitoria.Controls.Add(lblVitoriaTitle);
+            panelVitoria.Controls.Add(lblVitoriaSubtitle);
+            panelVitoria.Controls.Add(rtbVitoriaStats);
+            panelVitoria.Controls.Add(btnVoltarMenuVitoria);
+            panelVitoria.Location = new Point(0, 0);
+            panelVitoria.Name = "panelVitoria";
+            panelVitoria.Size = new Size(934, 651);
+            panelVitoria.TabIndex = 14;
+            panelVitoria.Visible = false;
+            //
+            // lblVitoriaTitle
+            //
+            lblVitoriaTitle.AutoSize = false;
+            lblVitoriaTitle.BackColor = Color.Transparent;
+            lblVitoriaTitle.Font = new Font("Impact", 48F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblVitoriaTitle.ForeColor = Color.Gold;
+            lblVitoriaTitle.Location = new Point(0, 60);
+            lblVitoriaTitle.Name = "lblVitoriaTitle";
+            lblVitoriaTitle.Size = new Size(934, 80);
+            lblVitoriaTitle.TabIndex = 0;
+            lblVitoriaTitle.Text = "PARABÉNS!";
+            lblVitoriaTitle.TextAlign = ContentAlignment.MiddleCenter;
+            //
+            // lblVitoriaSubtitle
+            //
+            lblVitoriaSubtitle.AutoSize = false;
+            lblVitoriaSubtitle.BackColor = Color.Transparent;
+            lblVitoriaSubtitle.Font = new Font("Impact", 18F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblVitoriaSubtitle.ForeColor = Color.White;
+            lblVitoriaSubtitle.Location = new Point(0, 155);
+            lblVitoriaSubtitle.Name = "lblVitoriaSubtitle";
+            lblVitoriaSubtitle.Size = new Size(934, 35);
+            lblVitoriaSubtitle.TabIndex = 1;
+            lblVitoriaSubtitle.Text = "Você concluiu o Campus Quest!";
+            lblVitoriaSubtitle.TextAlign = ContentAlignment.MiddleCenter;
+            //
+            // rtbVitoriaStats
+            //
+            rtbVitoriaStats.BackColor = Color.FromArgb(20, 20, 60);
+            rtbVitoriaStats.Font = new Font("Calibri", 14F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            rtbVitoriaStats.ForeColor = Color.White;
+            rtbVitoriaStats.Location = new Point(217, 210);
+            rtbVitoriaStats.Name = "rtbVitoriaStats";
+            rtbVitoriaStats.ReadOnly = true;
+            rtbVitoriaStats.Size = new Size(500, 295);
+            rtbVitoriaStats.TabIndex = 2;
+            rtbVitoriaStats.Text = "";
+            //
+            // btnVoltarMenuVitoria
+            //
+            btnVoltarMenuVitoria.BackColor = Color.Gold;
+            btnVoltarMenuVitoria.FlatStyle = FlatStyle.Flat;
+            btnVoltarMenuVitoria.Font = new Font("Impact", 15F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnVoltarMenuVitoria.ForeColor = Color.Black;
+            btnVoltarMenuVitoria.Location = new Point(367, 520);
+            btnVoltarMenuVitoria.Name = "btnVoltarMenuVitoria";
+            btnVoltarMenuVitoria.Size = new Size(200, 50);
+            btnVoltarMenuVitoria.TabIndex = 3;
+            btnVoltarMenuVitoria.Text = "Voltar ao Menu";
+            btnVoltarMenuVitoria.UseVisualStyleBackColor = false;
+            btnVoltarMenuVitoria.Click += btnVoltarMenuVitoria_Click;
+            //
             // TelaInicial
-            // 
+            //
             AutoScaleDimensions = new SizeF(8F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Gray;
@@ -527,6 +818,9 @@
             Controls.Add(panelNome);
             Controls.Add(panelProfessor);
             Controls.Add(panelQuiz);
+            Controls.Add(panelSalaExame);
+            Controls.Add(panelCoordenacao);
+            Controls.Add(panelVitoria);
             Font = new Font("MV Boli", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             ForeColor = Color.White;
             Name = "TelaInicial";
@@ -540,6 +834,9 @@
             panelVeterano.ResumeLayout(false);
             panelProfessor.ResumeLayout(false);
             panelQuiz.ResumeLayout(false);
+            panelSalaExame.ResumeLayout(false);
+            panelCoordenacao.ResumeLayout(false);
+            panelVitoria.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -588,5 +885,25 @@
         private Button btnAltA;
         private Button btnAltB;
         private Button btnAltC;
+        private Panel panelSalaExame;
+        private Label lblMateria;
+        private Label lblVidaAluno;
+        private Label lblVidaChefe;
+        private RichTextBox rtbExame;
+        private Button btnExamA;
+        private Button btnExamB;
+        private Button btnExamC;
+        private Button btnExamD;
+        private Panel panelCoordenacao;
+        private RichTextBox rtbCoordenadora;
+        private Button btnPedirItemCoordenadora;
+        private Button btnPedirDicaCoordenadora;
+        private Button btnTrancarSemestre;
+        private Button btnVoltarCoordenadora;
+        private Panel panelVitoria;
+        private Label lblVitoriaTitle;
+        private Label lblVitoriaSubtitle;
+        private RichTextBox rtbVitoriaStats;
+        private Button btnVoltarMenuVitoria;
     }
 }

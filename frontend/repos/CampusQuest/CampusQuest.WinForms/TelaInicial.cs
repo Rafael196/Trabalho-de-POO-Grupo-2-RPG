@@ -1,11 +1,12 @@
 using System;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
 using CampusQuest.Core;
-using CampusQuest.NPCs;
-using CampusQuest.Quiz;
 using CampusQuest.Itens;
+using CampusQuest.Materias;
+using CampusQuest.NPCs;
 using CampusQuest.Persistencia;
+using CampusQuest.Quiz;
 
 namespace CampusQuest.WinForms
 {
@@ -18,12 +19,19 @@ namespace CampusQuest.WinForms
         private int perguntaAtual = 0;
         private int acertosQuiz = 0;
         private int semestreQuiz = 1;
-        private readonly IRepositorioQuestoes repositorioQuestoes;
+        private Materia? chefeAtual;
+        private List<Pergunta>? perguntasExame;
+        private int perguntaExameAtual;
+        private int acertosExame;
+        private int errosExame;
+        private Persistencia.IRepositorio? repositorio;
+        private IRepositorioQuestoes repositorioQuestoes;
 
         public TelaInicial()
         {
             InitializeComponent();
             repositorioQuestoes = new SqliteRepositorioQuestoes();
+            repositorio = new RepositorioJson("saves/slot1.json");
         }
 
         private void TelaInicial_Load(object sender, EventArgs e)
@@ -67,7 +75,34 @@ namespace CampusQuest.WinForms
 
         private void btnCarregarJogo_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Funcionalidade de carregar jogo ainda não implementada.");
+            if (!repositorio.ExisteArquivo())
+            {
+                MessageBox.Show("Nenhum save encontrado.", "Carregar Jogo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            try
+            {
+                EstadoJogo estado = repositorio.Carregar();
+                alunoAtual = new Aluno();
+                EstadoJogoFactory.Aplicar(alunoAtual, estado);
+
+                panelMenu.Visible = false;
+                panelHall.Visible = true;
+                panelHall.BringToFront();
+
+                rtbMensagens.Clear();
+                rtbMensagens.AppendText($"Bem-vindo de volta, {alunoAtual.Nome}!\n");
+                rtbMensagens.AppendText($"Semestre: {alunoAtual.SemestreAtual}\n");
+                rtbMensagens.AppendText($"Vida: {alunoAtual.Vida}/{alunoAtual.VidaMaxima}\n");
+                rtbMensagens.AppendText($"Conhecimento: {alunoAtual.Conhecimento}\n");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar jogo: {ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         // ====================== VETERANO ======================
@@ -171,9 +206,9 @@ namespace CampusQuest.WinForms
         private void btnFazerQuiz_Click(object sender, EventArgs e)
         {
             DialogResult escolha = MessageBox.Show(
-        "Sim = Semestre 1\nNão = Semestre 2\nCancelar = Semestre 3",
-        "Escolha o semestre",
-        MessageBoxButtons.YesNoCancel);
+                "Sim = Semestre 1\nNão = Semestre 2\nCancelar = Semestre 3",
+                "Escolha o semestre",
+                MessageBoxButtons.YesNoCancel);
 
             if (escolha == DialogResult.Yes)
                 semestreQuiz = 1;
@@ -200,7 +235,6 @@ namespace CampusQuest.WinForms
             Pergunta pergunta = perguntasQuiz[perguntaAtual];
 
             rtbQuiz.Clear();
-
             rtbQuiz.AppendText($"Pergunta {perguntaAtual + 1} de {perguntasQuiz.Length}\n\n");
             rtbQuiz.AppendText(pergunta.Enunciado);
 
@@ -222,7 +256,6 @@ namespace CampusQuest.WinForms
             if (pergunta.VerificarResposta(indiceEscolhido))
             {
                 acertosQuiz++;
-
                 rtbQuiz.AppendText("✓ Correto!\n");
             }
             else
@@ -244,9 +277,7 @@ namespace CampusQuest.WinForms
 
         private void FinalizarQuiz()
         {
-            int aproveitamento =
-                (int)((double)acertosQuiz /
-                perguntasQuiz.Length * 100);
+            int aproveitamento = (int)((double)acertosQuiz / perguntasQuiz.Length * 100);
 
             bool revisao = semestreQuiz < alunoAtual?.SemestreAtual;
             int ganhoConhecimento = acertosQuiz * 10 * (revisao ? 50 : 100) / 100;
@@ -254,7 +285,6 @@ namespace CampusQuest.WinForms
             alunoAtual?.AumentarConhecimento(ganhoConhecimento);
 
             string recompensa = "Nenhuma";
-
             CampusQuest.Core.Item? itemRecebido = null;
 
             if (aproveitamento >= 80)
@@ -277,9 +307,7 @@ namespace CampusQuest.WinForms
                 itemRecebido = new Cafe();
             }
 
-            if (alunoAtual != null &&
-                itemRecebido != null &&
-                alunoAtual.PodeReceberItem(itemRecebido))
+            if (alunoAtual != null && itemRecebido != null && alunoAtual.PodeReceberItem(itemRecebido))
             {
                 if (alunoAtual.Inventario.Adicionar(itemRecebido))
                 {
@@ -293,22 +321,21 @@ namespace CampusQuest.WinForms
             }
             else if (alunoAtual != null && itemRecebido != null)
             {
-                rtbProfessor.AppendText($"Limite de {itemRecebido.GetType().Name} do semestre atingido. Item não adicionado.\n");
+                rtbProfessor.AppendText($"Limite de {itemRecebido.GetType().Name} do semestre atingido.\n");
             }
+
             panelQuiz.Visible = false;
             panelProfessor.Visible = true;
 
             rtbProfessor.Clear();
-
             rtbProfessor.AppendText("=== QUIZ CONCLUÍDO ===\n");
             rtbProfessor.AppendText($"Acertos: {acertosQuiz}/{perguntasQuiz.Length}\n");
             rtbProfessor.AppendText($"Aproveitamento: {aproveitamento}%\n");
             rtbProfessor.AppendText($"Conhecimento ganho: +{ganhoConhecimento}\n");
             rtbProfessor.AppendText($"Item recebido: {recompensa}\n");
-
-            rtbProfessor.AppendText("O professor analisa seu desempenho.\n");
             rtbProfessor.AppendText("Escolha uma nova ação abaixo.\n");
         }
+
         private void CarregarPerguntasQuiz()
         {
             switch (semestreQuiz)
@@ -316,99 +343,63 @@ namespace CampusQuest.WinForms
                 case 1:
                     perguntasQuiz = new Pergunta[]
                     {
-                new Pergunta("O que é hardware?",
-                    new[] {"Parte física","Programa","Rede","Arquivo"},
-                    0,
-                    "Hardware é a parte física."),
-
-                new Pergunta("O que é software?",
-                    new[] {"Programa","Placa","Teclado","Memória"},
-                    0,
-                    "Software é o conjunto de programas."),
-
-                new Pergunta("Qual sistema gerencia recursos do computador?",
-                    new[] {"Sistema operacional","Editor","Navegador","Jogos"},
-                    0,
-                    "O sistema operacional gerencia recursos."),
-
-                new Pergunta("Qual número representa binário?",
-                    new[] {"0 e 1","2 e 3","5 e 6","8 e 9"},
-                    0,
-                    "Binário usa 0 e 1."),
-
-                new Pergunta("Qual dispositivo conecta redes?",
-                    new[] {"Roteador","Mouse","Monitor","Teclado"},
-                    0,
-                    "Roteador conecta redes.")
+                        new Pergunta("O que é hardware?",
+                            new[] {"Parte física","Programa","Rede","Arquivo"}, 0,
+                            "Hardware é a parte física."),
+                        new Pergunta("O que é software?",
+                            new[] {"Programa","Placa","Teclado","Memória"}, 0,
+                            "Software é o conjunto de programas."),
+                        new Pergunta("Qual sistema gerencia recursos do computador?",
+                            new[] {"Sistema operacional","Editor","Navegador","Jogos"}, 0,
+                            "O sistema operacional gerencia recursos."),
+                        new Pergunta("Qual número representa binário?",
+                            new[] {"0 e 1","2 e 3","5 e 6","8 e 9"}, 0,
+                            "Binário usa 0 e 1."),
+                        new Pergunta("Qual dispositivo conecta redes?",
+                            new[] {"Roteador","Mouse","Monitor","Teclado"}, 0,
+                            "Roteador conecta redes.")
                     };
                     break;
 
                 case 2:
                     perguntasQuiz = new Pergunta[]
                     {
-                new Pergunta("Pilha segue qual regra?",
-                    new[] {"LIFO","FIFO","ABC","XYZ"},
-                    0,
-                    "Pilha é LIFO."),
-
-                new Pergunta("Fila segue qual regra?",
-                    new[] {"FIFO","LIFO","DFS","BFS"},
-                    0,
-                    "Fila é FIFO."),
-
-                new Pergunta("Busca binária exige dados:",
-                    new[] {"Ordenados","Aleatórios","Vazios","Repetidos"},
-                    0,
-                    "Busca binária exige ordenação."),
-
-                new Pergunta("Complexidade O(n) indica crescimento:",
-                    new[] {"Linear","Constante","Quadrático","Logarítmico"},
-                    0,
-                    "O(n) é linear."),
-
-                new Pergunta("Qual estrutura combina recursão?",
-                    new[] {"Pilha","Fila","Lista","Matriz"},
-                    0,
-                    "Recursão usa pilha.")
+                        new Pergunta("Pilha segue qual regra?",
+                            new[] {"LIFO","FIFO","ABC","XYZ"}, 0,
+                            "Pilha é LIFO."),
+                        new Pergunta("Fila segue qual regra?",
+                            new[] {"FIFO","LIFO","DFS","BFS"}, 0,
+                            "Fila é FIFO."),
+                        new Pergunta("Busca binária exige dados:",
+                            new[] {"Ordenados","Aleatórios","Vazios","Repetidos"}, 0,
+                            "Busca binária exige ordenação."),
+                        new Pergunta("Complexidade O(n) indica crescimento:",
+                            new[] {"Linear","Constante","Quadrático","Logarítmico"}, 0,
+                            "O(n) é linear."),
+                        new Pergunta("Qual estrutura combina recursão?",
+                            new[] {"Pilha","Fila","Lista","Matriz"}, 0,
+                            "Recursão usa pilha.")
                     };
                     break;
 
                 default:
                     perguntasQuiz = new Pergunta[]
                     {
-                new Pergunta("Encapsulamento controla:",
-                    new[] {"Acesso aos dados","Rede","Compilação","Memória"},
-                    0,
-                    "Encapsulamento controla acesso."),
-
-                new Pergunta("Herança permite:",
-                    new[] {"Reuso","Apagar dados","Acelerar CPU","Criar rede"},
-                    0,
-                    "Herança promove reuso."),
-
-                new Pergunta("Polimorfismo significa:",
-                    new[] {"Mesmo método com comportamentos diferentes",
-                           "Só um construtor",
-                           "Sem classes",
-                           "Sem objetos"},
-                    0,
-                    "Polimorfismo altera comportamento."),
-
-                new Pergunta("Abstração é:",
-                    new[] {"Focar no essencial",
-                           "Duplicar código",
-                           "Evitar classes",
-                           "Criar bugs"},
-                    0,
-                    "Abstração foca no essencial."),
-
-                new Pergunta("Objeto é:",
-                    new[] {"Instância de classe",
-                           "Método",
-                           "Interface",
-                           "Namespace"},
-                    0,
-                    "Objeto é uma instância.")
+                        new Pergunta("Encapsulamento controla:",
+                            new[] {"Acesso aos dados","Rede","Compilação","Memória"}, 0,
+                            "Encapsulamento controla acesso."),
+                        new Pergunta("Herança permite:",
+                            new[] {"Reuso","Apagar dados","Acelerar CPU","Criar rede"}, 0,
+                            "Herança promove reuso."),
+                        new Pergunta("Polimorfismo significa:",
+                            new[] {"Mesmo método com comportamentos diferentes","Só um construtor","Sem classes","Sem objetos"}, 0,
+                            "Polimorfismo altera comportamento."),
+                        new Pergunta("Abstração é:",
+                            new[] {"Focar no essencial","Duplicar código","Evitar classes","Criar bugs"}, 0,
+                            "Abstração foca no essencial."),
+                        new Pergunta("Objeto é:",
+                            new[] {"Instância de classe","Método","Interface","Namespace"}, 0,
+                            "Objeto é uma instância.")
                     };
                     break;
             }
@@ -420,65 +411,331 @@ namespace CampusQuest.WinForms
             panelHall.Visible = true;
         }
 
-        private void txtNome_TextChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-        }
-
-        private void panelNome_Paint(object sender, PaintEventArgs e)
-        {
-        }
-
-        private void rtbMensagens_TextChanged(object sender, EventArgs e)
-        {
-        }
-
+        // ====================== SALA DE EXAME ======================
         private void opc3_Click(object sender, EventArgs e)
         {
+            if (alunoAtual == null) return;
+
+            panelHall.Visible = false;
+            panelSalaExame.Visible = true;
+
+            chefeAtual = CriarChefe(alunoAtual);
+            perguntasExame = chefeAtual.GetPerguntasExame();
+            perguntaExameAtual = 0;
+            acertosExame = 0;
+            errosExame = 0;
+
+            lblMateria.Text = chefeAtual.Nome;
+            AtualizarStatusExame();
+            MostrarPerguntaExame();
         }
 
-        private void rtbVeterano_TextChanged(object sender, EventArgs e)
+        private static Materia CriarChefe(Aluno aluno)
         {
+            if (aluno.SemestresCompletos())
+                return new TCC(aluno.GetMediaFinal());
+
+            return aluno.SemestreAtual switch
+            {
+                1 => new IC(),
+                2 => new AED(),
+                3 => new POO(),
+                _ => new IC()
+            };
         }
-        private void rtbProfessor_TextChanged(object sender, EventArgs e)
+
+        private void AtualizarStatusExame()
         {
+            lblVidaAluno.Text = $"Aluno: {alunoAtual!.Vida}/{alunoAtual.VidaMaxima}";
+            lblVidaChefe.Text = $"Chefe: {chefeAtual!.GetVidaAtual()}/{chefeAtual.GetVidaMaxima()}";
         }
 
-        private void lblNome_Click(object sender, EventArgs e)
+        private void MostrarPerguntaExame()
         {
+            Pergunta pergunta = perguntasExame![perguntaExameAtual];
 
+            rtbExame.Text =
+                $"Pergunta {perguntaExameAtual + 1} de {perguntasExame.Count}\n\n" +
+                pergunta.Enunciado;
+
+            btnExamA.Text = pergunta.Alternativas[0];
+            btnExamB.Text = pergunta.Alternativas[1];
+            btnExamC.Text = pergunta.Alternativas[2];
+            btnExamD.Text = pergunta.Alternativas[3];
         }
-        private void label1_Click(object sender, EventArgs e)
+
+        private void btnExamA_Click(object sender, EventArgs e) => ResponderPerguntaExame(0);
+        private void btnExamB_Click(object sender, EventArgs e) => ResponderPerguntaExame(1);
+        private void btnExamC_Click(object sender, EventArgs e) => ResponderPerguntaExame(2);
+        private void btnExamD_Click(object sender, EventArgs e) => ResponderPerguntaExame(3);
+
+        private void ResponderPerguntaExame(int respostaEscolhida)
         {
+            Pergunta pergunta = perguntasExame![perguntaExameAtual];
 
+            if (pergunta.VerificarResposta(respostaEscolhida))
+            {
+                acertosExame++;
+                int danoAluno = (int)Math.Round(15 * (1 + alunoAtual!.Conhecimento / 100.0));
+                chefeAtual!.ReceberDano(danoAluno);
+                rtbExame.Text = "✓ Resposta correta!";
+                Application.DoEvents();
+                Thread.Sleep(1000);
+            }
+            else
+            {
+                errosExame++;
+                int danoChefe = (int)Math.Round(20 * (1 - alunoAtual!.Conhecimento / 100.0));
+                danoChefe = Math.Max(1, danoChefe);
+                alunoAtual.ReceberDano(danoChefe);
+                rtbExame.Text = $"✗ Resposta incorreta!\n\n{pergunta.Explicacao}";
+                Application.DoEvents();
+                Thread.Sleep(2000);
+            }
+
+            AtualizarStatusExame();
+
+            if (chefeAtual!.EstaVencido())
+            {
+                VitoriaExame();
+                return;
+            }
+
+            if (!alunoAtual!.EstaVivo())
+            {
+                DerrotaExame();
+                return;
+            }
+
+            perguntaExameAtual++;
+
+            if (perguntaExameAtual >= perguntasExame.Count)
+            {
+                if (chefeAtual.GetVidaAtual() < alunoAtual.Vida)
+                    VitoriaExame();
+                else
+                    DerrotaExame();
+                return;
+            }
+
+            MostrarPerguntaExame();
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void VitoriaExame()
         {
+            bool eraTCC = chefeAtual is TCC;
 
+            int aproveitamento = (int)((double)acertosExame / perguntasExame!.Count * 100);
+
+            alunoAtual!.RegistrarAproveitamento(alunoAtual.SemestreAtual, aproveitamento);
+            alunoAtual.AvancarSemestre();
+
+            panelSalaExame.Visible = false;
+
+            if (eraTCC)
+            {
+                MostrarTelaVitoria(aproveitamento);
+                return;
+            }
+
+            panelHall.Visible = true;
+
+            rtbMensagens.Clear();
+            rtbMensagens.AppendText("=== RESULTADO DO EXAME ===\n\n");
+            rtbMensagens.AppendText($"Acertos: {acertosExame}\n");
+            rtbMensagens.AppendText($"Erros: {errosExame}\n");
+            rtbMensagens.AppendText($"Aproveitamento: {aproveitamento}%\n");
+            rtbMensagens.AppendText($"Média Geral: {alunoAtual.GetMediaFinal():0.0}\n");
+            rtbMensagens.AppendText($"Semestre Atual: {alunoAtual.SemestreAtual}\n\n");
+            rtbMensagens.AppendText("Você foi aprovado!\n");
+
+            DesbloquearHabilidade();
         }
-        private void btnAltA_Click(object sender, EventArgs e)
+
+        private void MostrarTelaVitoria(int aproveitamentoTCC)
         {
-            ResponderPergunta(0);
+            float media = alunoAtual!.GetMediaFinal();
 
+            rtbVitoriaStats.Clear();
+            rtbVitoriaStats.AppendText("=== HISTÓRICO ===\n\n");
+            rtbVitoriaStats.AppendText($"Semestre 1 — IC:  {alunoAtual.Aproveitamentos[0]}%\n");
+            rtbVitoriaStats.AppendText($"Semestre 2 — AED: {alunoAtual.Aproveitamentos[1]}%\n");
+            rtbVitoriaStats.AppendText($"Semestre 3 — POO: {alunoAtual.Aproveitamentos[2]}%\n");
+            rtbVitoriaStats.AppendText($"TCC:              {aproveitamentoTCC}%\n\n");
+            rtbVitoriaStats.AppendText($"Média Final: {media:0.0}\n\n");
+            rtbVitoriaStats.AppendText("=== ESTATÍSTICAS ===\n\n");
+            rtbVitoriaStats.AppendText($"Conhecimento: {alunoAtual.Conhecimento}\n");
+            rtbVitoriaStats.AppendText($"Quizzes concluídos: {alunoAtual.QuizzesConcluidos}\n");
+            rtbVitoriaStats.AppendText($"Itens usados: {alunoAtual.ItensUsados}\n");
+
+            panelVitoria.Visible = true;
+            panelVitoria.BringToFront();
         }
-        private void btnAltB_Click(object sender, EventArgs e)
+
+        private void btnVoltarMenuVitoria_Click(object sender, EventArgs e)
         {
-            ResponderPergunta(1);
-
+            panelVitoria.Visible = false;
+            alunoAtual = null;
+            panelMenu.Visible = true;
+            panelMenu.BringToFront();
         }
-        private void btnAltC_Click(object sender, EventArgs e)
+
+        private void DerrotaExame()
         {
-            ResponderPergunta(2);
+            panelSalaExame.Visible = false;
+            panelHall.Visible = true;
 
+            rtbMensagens.Clear();
+            rtbMensagens.AppendText("=== RESULTADO DO EXAME ===\n\n");
+            rtbMensagens.AppendText($"Acertos: {acertosExame}\n");
+            rtbMensagens.AppendText($"Erros: {errosExame}\n");
+            rtbMensagens.AppendText("Você foi reprovado.\n");
         }
-        private void btnAltD_Click(object sender, EventArgs e)
+
+        // ====================== SALA COORDENAÇÃO ======================
+        private void opc4_Click(object sender, EventArgs e)
         {
-            ResponderPergunta(3);
+            if (alunoAtual == null) return;
 
+            panelHall.Visible = false;
+            panelCoordenacao.Visible = true;
+            panelCoordenacao.BringToFront();
+
+            Coordenador coordenador = new Coordenador();
+            rtbCoordenadora.Clear();
+            rtbCoordenadora.AppendText(coordenador.GetMensagemAbertura(alunoAtual));
         }
+
+        private void btnPedirItemCoordenadora_Click(object sender, EventArgs e)
+        {
+            if (alunoAtual == null) return;
+
+            Coordenador coordenador = new Coordenador();
+            rtbCoordenadora.Clear();
+            rtbCoordenadora.AppendText(coordenador.MensagemItemIndisponivel(alunoAtual));
+        }
+
+        private void btnPedirDicaCoordenadora_Click(object sender, EventArgs e)
+        {
+            if (alunoAtual == null) return;
+
+            Coordenador coordenador = new Coordenador();
+            rtbCoordenadora.Clear();
+            rtbCoordenadora.AppendText(coordenador.ObterDica(alunoAtual));
+        }
+
+        private void btnTrancarSemestre_Click(object sender, EventArgs e)
+        {
+            if (alunoAtual == null || repositorio == null) return;
+
+            Coordenador coordenador = new Coordenador(repositorio);
+            bool trancado = coordenador.TrancarSemestre(alunoAtual, repositorio);
+            string mensagem = coordenador.GetDialogo();
+
+            rtbCoordenadora.Clear();
+            rtbCoordenadora.AppendText(mensagem);
+
+            if (!trancado)
+                rtbCoordenadora.AppendText("\nTente novamente mais tarde.");
+        }
+
+        private void btnVoltarCoordenadora_Click(object sender, EventArgs e)
+        {
+            panelCoordenacao.Visible = false;
+            panelHall.Visible = true;
+        }
+
+        // ====================== STATUS E INVENTÁRIO ======================
+        private void opc5_Click(object sender, EventArgs e)
+        {
+            if (alunoAtual == null) return;
+
+            rtbMensagens.Clear();
+            rtbMensagens.AppendText("=== Status do Aluno ===\n\n");
+            rtbMensagens.AppendText($"Vida: {alunoAtual.Vida}/{alunoAtual.VidaMaxima}\n");
+            rtbMensagens.AppendText($"Conhecimento: {alunoAtual.Conhecimento}\n");
+            rtbMensagens.AppendText($"Semestre: {alunoAtual.SemestreAtual}\n");
+
+            var itens = alunoAtual.Inventario.ListarItens();
+            if (itens.Count == 0)
+                rtbMensagens.AppendText("Inventário: Nenhum item.\n");
+            else
+                rtbMensagens.AppendText($"Inventário: {alunoAtual.Inventario.Quantidade}/{Inventario.CapacidadeMaxima}\n");
+        }
+
+        private void opc6_Click(object sender, EventArgs e)
+        {
+            if (alunoAtual == null) return;
+
+            rtbMensagens.Clear();
+            rtbMensagens.AppendText("=== INVENTÁRIO ===\n\n");
+
+            var itens = alunoAtual.Inventario.ListarItens();
+
+            if (itens.Count == 0)
+            {
+                rtbMensagens.AppendText("Nenhum item.\n");
+                return;
+            }
+
+            foreach (CampusQuest.Itens.Item item in itens)
+                rtbMensagens.AppendText(item.Nome + "\n");
+        }
+
+        // ====================== SALVAR / MENU ======================
+        private void opc7_Click(object sender, EventArgs e)
+        {
+            if (alunoAtual != null)
+            {
+                try
+                {
+                    EstadoJogo estado = EstadoJogoFactory.Criar(alunoAtual);
+                    repositorio?.Salvar(estado);
+                    rtbMensagens.AppendText("\nJogo salvo com sucesso.\n");
+                }
+                catch
+                {
+                    rtbMensagens.AppendText("\nFalha ao salvar o jogo.\n");
+                }
+            }
+
+            panelHall.Visible = false;
+            panelMenu.Visible = true;
+        }
+
+        // ====================== AUXILIARES ======================
+        private void DesbloquearHabilidade()
+        {
+            string habilidade = alunoAtual!.SemestreAtual switch
+            {
+                2 => "Lógica de Programação",
+                3 => "Estruturas de Dados",
+                4 => "Programação Orientada a Objetos",
+                _ => ""
+            };
+
+            if (!string.IsNullOrEmpty(habilidade))
+                rtbMensagens.AppendText($"\nNova habilidade desbloqueada: {habilidade}\n");
+        }
+
+        // ====================== EVENTOS NÃO USADOS ======================
+        private void panelCoordenacao_Paint(object sender, PaintEventArgs e) { }
+        private void txtNome_TextChanged(object sender, EventArgs e) { }
+        private void panel1_Paint(object sender, PaintEventArgs e) { }
+        private void panelNome_Paint(object sender, PaintEventArgs e) { }
+        private void rtbMensagens_TextChanged(object sender, EventArgs e) { }
+        private void rtbVeterano_TextChanged(object sender, EventArgs e) { }
+        private void rtbProfessor_TextChanged(object sender, EventArgs e) { }
+        private void lblNome_Click(object sender, EventArgs e) { }
+        private void label1_Click(object sender, EventArgs e) { }
+        private void button4_Click(object sender, EventArgs e) { }
+        private void pictureBox1_Click(object sender, EventArgs e) { }
+        private void lblVidaAluno_Click(object sender, EventArgs e) { }
+        private void lblVidaChefe_Click(object sender, EventArgs e) { }
+
+        private void btnAltA_Click(object sender, EventArgs e) => ResponderPergunta(0);
+        private void btnAltB_Click(object sender, EventArgs e) => ResponderPergunta(1);
+        private void btnAltC_Click(object sender, EventArgs e) => ResponderPergunta(2);
+        private void btnAltD_Click(object sender, EventArgs e) => ResponderPergunta(3);
     }
 }
