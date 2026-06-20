@@ -82,6 +82,11 @@
             btnTrancarSemestre = new Button();
             btnVoltarCoordenadora = new Button();
             Coordenadora = new PictureBox();
+            panelVitoria = new Panel();
+            lblVitoriaTitle = new Label();
+            lblVitoriaSubtitle = new Label();
+            rtbVitoriaStats = new RichTextBox();
+            btnVoltarMenuVitoria = new Button();
             panelMenu.SuspendLayout();
             panelNome.SuspendLayout();
             panelHall.SuspendLayout();
@@ -93,6 +98,7 @@
             panelSalaExame.SuspendLayout();
             panelCoordenacao.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)Coordenadora).BeginInit();
+            panelVitoria.SuspendLayout();
             SuspendLayout();
             // 
             // label1
@@ -769,7 +775,66 @@
             Coordenadora.Size = new Size(386, 379);
             Coordenadora.TabIndex = 11;
             Coordenadora.TabStop = false;
-            // 
+            //
+            // panelVitoria
+            //
+            panelVitoria.BackColor = Color.FromArgb(15, 15, 50);
+            panelVitoria.Controls.Add(lblVitoriaTitle);
+            panelVitoria.Controls.Add(lblVitoriaSubtitle);
+            panelVitoria.Controls.Add(rtbVitoriaStats);
+            panelVitoria.Controls.Add(btnVoltarMenuVitoria);
+            panelVitoria.Location = new Point(0, 0);
+            panelVitoria.Name = "panelVitoria";
+            panelVitoria.Size = new Size(934, 651);
+            panelVitoria.TabIndex = 13;
+            panelVitoria.Visible = false;
+            //
+            // lblVitoriaTitle
+            //
+            lblVitoriaTitle.Font = new Font("Impact", 48F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblVitoriaTitle.ForeColor = Color.Gold;
+            lblVitoriaTitle.Location = new Point(0, 60);
+            lblVitoriaTitle.Name = "lblVitoriaTitle";
+            lblVitoriaTitle.Size = new Size(934, 80);
+            lblVitoriaTitle.TabIndex = 0;
+            lblVitoriaTitle.Text = "PARABÉNS!";
+            lblVitoriaTitle.TextAlign = ContentAlignment.MiddleCenter;
+            //
+            // lblVitoriaSubtitle
+            //
+            lblVitoriaSubtitle.Font = new Font("Impact", 18F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblVitoriaSubtitle.ForeColor = Color.White;
+            lblVitoriaSubtitle.Location = new Point(0, 155);
+            lblVitoriaSubtitle.Name = "lblVitoriaSubtitle";
+            lblVitoriaSubtitle.Size = new Size(934, 40);
+            lblVitoriaSubtitle.TabIndex = 1;
+            lblVitoriaSubtitle.Text = "Você concluiu o Campus Quest!";
+            lblVitoriaSubtitle.TextAlign = ContentAlignment.MiddleCenter;
+            //
+            // rtbVitoriaStats
+            //
+            rtbVitoriaStats.BackColor = Color.FromArgb(15, 15, 50);
+            rtbVitoriaStats.Font = new Font("Calibri", 14F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            rtbVitoriaStats.ForeColor = Color.White;
+            rtbVitoriaStats.Location = new Point(217, 210);
+            rtbVitoriaStats.Name = "rtbVitoriaStats";
+            rtbVitoriaStats.ReadOnly = true;
+            rtbVitoriaStats.Size = new Size(500, 295);
+            rtbVitoriaStats.TabIndex = 2;
+            rtbVitoriaStats.Text = "";
+            //
+            // btnVoltarMenuVitoria
+            //
+            btnVoltarMenuVitoria.BackColor = Color.Gold;
+            btnVoltarMenuVitoria.Font = new Font("Impact", 14F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnVoltarMenuVitoria.Location = new Point(367, 520);
+            btnVoltarMenuVitoria.Name = "btnVoltarMenuVitoria";
+            btnVoltarMenuVitoria.Size = new Size(200, 50);
+            btnVoltarMenuVitoria.TabIndex = 3;
+            btnVoltarMenuVitoria.Text = "Voltar ao Menu";
+            btnVoltarMenuVitoria.UseVisualStyleBackColor = false;
+            btnVoltarMenuVitoria.Click += btnVoltarMenuVitoria_Click;
+            //
             // TelaInicial
             //
             AutoScaleDimensions = new SizeF(8F, 17F);
@@ -784,6 +849,7 @@
             Controls.Add(panelVeterano);
             Controls.Add(panelQuiz);
             Controls.Add(panelNome);
+            Controls.Add(panelVitoria);
             Font = new Font("MV Boli", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             ForeColor = Color.White;
             Name = "TelaInicial";
@@ -802,6 +868,7 @@
             panelSalaExame.ResumeLayout(false);
             panelSalaExame.PerformLayout();
             panelCoordenacao.ResumeLayout(false);
+            panelVitoria.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)Coordenadora).EndInit();
             ResumeLayout(false);
         }
@@ -870,5 +937,10 @@
         private Button btnPedirDicaCoordenadora;
         private Button btnTrancarSemestre;
         private Button btnVoltarCoordenadora;
+        private Panel panelVitoria;
+        private Label lblVitoriaTitle;
+        private Label lblVitoriaSubtitle;
+        private RichTextBox rtbVitoriaStats;
+        private Button btnVoltarMenuVitoria;
     }
 }
