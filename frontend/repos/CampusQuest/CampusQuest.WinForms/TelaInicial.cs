@@ -721,6 +721,22 @@ namespace CampusQuest.WinForms
 
         // ====================== NAO USO ======================
 
+        private void label1_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void lblNome_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void rtbVeterano_TextChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void rtbProfessor_TextChanged(object sender, EventArgs e)
+        {
+        }
+
         private void txtNome_TextChanged(object sender, EventArgs e)
         {
         }
