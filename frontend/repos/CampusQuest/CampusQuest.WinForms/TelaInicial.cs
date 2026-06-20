@@ -23,12 +23,13 @@ namespace CampusQuest.WinForms
         private int perguntaAtual = 0;
         private int acertosQuiz = 0;
         private int semestreQuiz = 1;
-        private IC? chefeIC;
+        private Materia? chefeAtual;
         private List<Pergunta>? perguntasExame;
         private int perguntaExameAtual;
         private int acertosExame;
         private int errosExame;
-        Persistencia.IRepositorio repositorio;
+        private Persistencia.IRepositorio? repositorio;
+        private IRepositorioQuestoes repositorioQuestoes;
 
         private void DesbloquearHabilidade()
         {
@@ -60,6 +61,7 @@ namespace CampusQuest.WinForms
         {
             InitializeComponent();
             repositorioQuestoes = new SqliteRepositorioQuestoes();
+            repositorio = new RepositorioJson("saves/slot1.json");
         }
 
         private void TelaInicial_Load(object sender, EventArgs e)
@@ -103,7 +105,34 @@ namespace CampusQuest.WinForms
 
         private void btnCarregarJogo_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Funcionalidade de carregar jogo ainda não implementada.");
+            if (!repositorio.ExisteArquivo())
+            {
+                MessageBox.Show("Nenhum save encontrado.", "Carregar Jogo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            try
+            {
+                EstadoJogo estado = repositorio.Carregar();
+                alunoAtual = new Aluno();
+                EstadoJogoFactory.Aplicar(alunoAtual, estado);
+
+                panelMenu.Visible = false;
+                panelHall.Visible = true;
+                panelHall.BringToFront();
+
+                rtbMensagens.Clear();
+                rtbMensagens.AppendText($"Bem-vindo de volta, {alunoAtual.Nome}!\n");
+                rtbMensagens.AppendText($"Semestre: {alunoAtual.SemestreAtual}\n");
+                rtbMensagens.AppendText($"Vida: {alunoAtual.Vida}/{alunoAtual.VidaMaxima}\n");
+                rtbMensagens.AppendText($"Conhecimento: {alunoAtual.Conhecimento}\n");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar jogo: {ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         // ====================== VETERANO ======================
@@ -460,22 +489,38 @@ namespace CampusQuest.WinForms
 
         private void opc3_Click(object sender, EventArgs e)
         {
+            if (alunoAtual == null) return;
+
             panelHall.Visible = false;
             panelSalaExame.Visible = true;
 
-            chefeIC = new IC();
+            chefeAtual = CriarChefe(alunoAtual);
 
-            perguntasExame = chefeIC.GetPerguntasExame();
+            perguntasExame = chefeAtual.GetPerguntasExame();
 
             perguntaExameAtual = 0;
             acertosExame = 0;
             errosExame = 0;
 
-            lblMateria.Text = chefeIC.Nome;
+            lblMateria.Text = chefeAtual.Nome;
 
             AtualizarStatusExame();
 
             MostrarPerguntaExame();
+        }
+
+        private static Materia CriarChefe(Aluno aluno)
+        {
+            if (aluno.SemestresCompletos())
+                return new TCC(aluno.GetMediaFinal());
+
+            return aluno.SemestreAtual switch
+            {
+                1 => new IC(),
+                2 => new AED(),
+                3 => new POO(),
+                _ => new IC()
+            };
         }
 
         private void AtualizarStatusExame()
@@ -484,7 +529,7 @@ namespace CampusQuest.WinForms
                 $"Aluno: {alunoAtual.Vida}/{alunoAtual.VidaMaxima}";
 
             lblVidaChefe.Text =
-                $"Chefe: {chefeIC.GetVidaAtual()}/{chefeIC.GetVidaMaxima()}";
+                $"Chefe: {chefeAtual.GetVidaAtual()}/{chefeAtual.GetVidaMaxima()}";
         }
 
         private void MostrarPerguntaExame()
@@ -533,7 +578,7 @@ namespace CampusQuest.WinForms
                 (int)Math.Round(
                 15 * (1 + alunoAtual.Conhecimento / 100.0));
 
-                chefeIC.ReceberDano(danoAluno);
+                chefeAtual.ReceberDano(danoAluno);
 
                 rtbExame.Text = "✓ Resposta correta!";
                 Application.DoEvents();
@@ -560,7 +605,7 @@ namespace CampusQuest.WinForms
 
             AtualizarStatusExame();
 
-            if (chefeIC.EstaVencido())
+            if (chefeAtual.EstaVencido())
             {
                 VitoriaExame();
                 return;
@@ -576,7 +621,7 @@ namespace CampusQuest.WinForms
 
             if (perguntaExameAtual >= perguntasExame.Count)
             {
-                if (chefeIC.GetVidaAtual() < alunoAtual.Vida)
+                if (chefeAtual.GetVidaAtual() < alunoAtual.Vida)
                     VitoriaExame();
                 else
                     DerrotaExame();
@@ -793,6 +838,20 @@ namespace CampusQuest.WinForms
 
         private void opc7_Click(object sender, EventArgs e)
         {
+            if (alunoAtual != null)
+            {
+                try
+                {
+                    EstadoJogo estado = EstadoJogoFactory.Criar(alunoAtual);
+                    repositorio?.Salvar(estado);
+                    rtbMensagens.AppendText("\nJogo salvo com sucesso.\n");
+                }
+                catch
+                {
+                    rtbMensagens.AppendText("\nFalha ao salvar o jogo.\n");
+                }
+            }
+
             panelHall.Visible = false;
             panelMenu.Visible = true;
         }

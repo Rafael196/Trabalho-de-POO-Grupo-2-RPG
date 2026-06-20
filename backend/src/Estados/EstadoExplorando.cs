@@ -46,7 +46,7 @@ public class EstadoExplorando : IEstadoJogo
                 break;
             case "2":
                 {
-                    InteragirProfessor(contexto.AlunoAtivo);
+                    InteragirProfessor(contexto.AlunoAtivo, contexto.RepositorioQuestoes);
                     break;
                 }
             case "3":
