@@ -45,22 +45,22 @@ public class EstadoExplorando : IEstadoJogo
                 InteragirVeterano(contexto.AlunoAtivo);
                 break;
             case "2":
-            {
-                InteragirProfessor(contexto.AlunoAtivo, contexto.RepositorioQuestoes);
-                break;
-            }
+                {
+                    InteragirProfessor(contexto.AlunoAtivo, contexto.RepositorioQuestoes);
+                    break;
+                }
             case "3":
-            {
-                Materia chefe = CriarChefe(contexto.AlunoAtivo);
-                contexto.MudarEstado(new EstadoExame(chefe, io, contexto.RepositorioQuestoes));
-                break;
-            }
+                {
+                    Materia chefe = CriarChefe(contexto.AlunoAtivo);
+                    contexto.MudarEstado(new EstadoExame(chefe, io));
+                    break;
+                }
             case "4":
-            {
-                InteragirCoordenador(contexto.AlunoAtivo, contexto.Repositorio);
+                {
+                    InteragirCoordenador(contexto.AlunoAtivo, contexto.Repositorio);
 
-                break;
-            }
+                    break;
+                }
             case "5":
                 MostrarStatus(contexto.AlunoAtivo);
                 break;
@@ -100,30 +100,30 @@ public class EstadoExplorando : IEstadoJogo
         switch (resposta)
         {
             case "1":
-            {
-                Core.Item item = veterano.SolicitarItem(aluno);
-                if (item == null)
                 {
-                    io.WriteLine("Nenhum item disponivel no momento.");
+                    Core.Item item = veterano.SolicitarItem(aluno);
+                    if (item == null)
+                    {
+                        io.WriteLine("Nenhum item disponivel no momento.");
+                        break;
+                    }
+
+                    if (!aluno.PodeReceberItem(item))
+                    {
+                        io.WriteLine("Limite de itens do semestre atingido. Item nao adicionado.");
+                    }
+                    else if (aluno.Inventario.Adicionar(item))
+                    {
+                        aluno.RegistrarItemRecebido(item);
+                        io.WriteLine($"Item recebido: {ObterNomeItem(item)}");
+                    }
+                    else
+                    {
+                        io.WriteLine("Inventario cheio. Item nao adicionado.");
+                    }
+
                     break;
                 }
-
-                if (!aluno.PodeReceberItem(item))
-                {
-                    io.WriteLine("Limite de itens do semestre atingido. Item nao adicionado.");
-                }
-                else if (aluno.Inventario.Adicionar(item))
-                {
-                    aluno.RegistrarItemRecebido(item);
-                    io.WriteLine($"Item recebido: {ObterNomeItem(item)}");
-                }
-                else
-                {
-                    io.WriteLine("Inventario cheio. Item nao adicionado.");
-                }
-
-                break;
-            }
             case "2":
                 io.WriteLine(veterano.ObterDica(aluno));
                 break;
@@ -198,16 +198,16 @@ public class EstadoExplorando : IEstadoJogo
                 io.WriteLine(coordenador.ObterDica(aluno));
                 break;
             case "3":
-            {
-                bool trancado = coordenador.TrancarSemestre(aluno, repositorio);
-                io.WriteLine(coordenador.GetDialogo());
-                if (!trancado)
                 {
-                    io.WriteLine("Tente novamente mais tarde.");
-                }
+                    bool trancado = coordenador.TrancarSemestre(aluno, repositorio);
+                    io.WriteLine(coordenador.GetDialogo());
+                    if (!trancado)
+                    {
+                        io.WriteLine("Tente novamente mais tarde.");
+                    }
 
-                break;
-            }
+                    break;
+                }
             default:
                 io.WriteLine("Conversa encerrada.");
                 break;
