@@ -771,7 +771,7 @@
             Coordenadora.TabStop = false;
             // 
             // TelaInicial
-            // 
+            //
             AutoScaleDimensions = new SizeF(8F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Gray;
