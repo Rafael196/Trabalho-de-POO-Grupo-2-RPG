@@ -1,6 +1,6 @@
 # Campus Quest - Trabalho de POO
 
-Jogo de RPG em console inspirado na jornada universitaria, desenvolvido em C# com foco nos pilares de POO.
+Jogo de RPG inspirado na jornada universitaria, desenvolvido em C# com foco nos pilares de POO. Possui interface em console (backend) e interface gráfica WinForms (frontend, somente Windows).
 
 ## Como rodar
 
@@ -8,20 +8,31 @@ Jogo de RPG em console inspirado na jornada universitaria, desenvolvido em C# co
 - .NET SDK 8 instalado
 - SQLite (incluído via pacote NuGet `Microsoft.Data.Sqlite`)
 
-### Passo a passo (Windows)
-1) Abra um terminal na raiz do repositorio.
-2) Rode o comando abaixo:
+---
 
+### Backend (console) — Windows, macOS e Linux
+
+**Windows:**
 ```powershell
 dotnet run --project backend\CampusQuest.Backend.csproj
 ```
 
-### Passo a passo (macOS/Linux)
+**macOS/Linux:**
+```bash
+dotnet run --project backend/CampusQuest.Backend.csproj
+```
+
+---
+
+### Frontend (interface gráfica WinForms) — somente Windows
+
+> **Atenção:** o frontend usa Windows Forms e só funciona em Windows.
+
 1) Abra um terminal na raiz do repositorio.
 2) Rode o comando abaixo:
 
-```bash
-dotnet run --project backend/CampusQuest.Backend.csproj
+```powershell
+dotnet run --project frontend\repos\CampusQuest\CampusQuest.WinForms\CampusQuest.WinForms.csproj
 ```
 
 ### Onde os dados são salvos
@@ -62,7 +73,7 @@ O jogo inicializa automaticamente o banco de dados SQLite na primeira execução
 
 ## Responsabilidades (regra pratica)
 - Logica do jogo fica em `Core`, `Exame`, `Quiz` e `Itens`.
-- Entrada/saida fica em `UI` (console agora, UI grafica depois).
+- Entrada/saida fica em `UI` (console via backend, interface gráfica via frontend WinForms).
 - Persistencia nao conhece UI; recebe apenas DTOs.
 
 ## Fluxo rapido do jogo
