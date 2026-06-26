@@ -9,6 +9,7 @@ using CampusQuest.NPCs;
 using CampusQuest.Persistencia;
 using CampusQuest.Quiz;
 using CampusQuest.Estados;
+using GameItem = CampusQuest.Itens.Item;
 
 
 namespace CampusQuest.WinForms
@@ -489,6 +490,10 @@ namespace CampusQuest.WinForms
 
         private void MostrarPerguntaExame()
         {
+            btnExamA.Visible = true;
+            btnExamB.Visible = true;
+            btnExamC.Visible = true;
+            btnExamD.Visible = true;
             Pergunta pergunta = perguntasExame[perguntaExameAtual];
 
             rtbExame.Text =
@@ -537,7 +542,7 @@ namespace CampusQuest.WinForms
 
                 rtbExame.Text = "✓ Resposta correta!";
                 Application.DoEvents();
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
             }
             else
             {
@@ -555,7 +560,7 @@ namespace CampusQuest.WinForms
                 $"✗ Resposta incorreta!\n\n{pergunta.Explicacao}";
 
                 Application.DoEvents();
-                Thread.Sleep(2000);
+                Thread.Sleep(1000);
             }
 
             AtualizarStatusExame();
@@ -618,6 +623,18 @@ namespace CampusQuest.WinForms
 
         private void DerrotaExame()
         {
+            bool eraTCC = chefeAtual is TCC;
+
+            panelSalaExame.Visible = false;
+
+            if (eraTCC)
+            {
+                MostrarTelaDerrota();
+                return;
+            }
+
+            panelHall.Visible = true;
+
             rtbMensagens.Clear();
 
             rtbMensagens.AppendText(
@@ -627,13 +644,31 @@ namespace CampusQuest.WinForms
                 $"Acertos: {acertosExame}\n");
 
             rtbMensagens.AppendText(
-                $"Erros: {errosExame}\n");
+                $"Erros: {errosExame}\n\n");
 
             rtbMensagens.AppendText(
                 "Você foi reprovado.\n");
+        }
 
+        private void MostrarTelaDerrota()
+        {
             panelSalaExame.Visible = false;
-            panelHall.Visible = true;
+            panelHall.Visible = false;
+            panelProfessor.Visible = false;
+            panelCoordenacao.Visible = false;
+
+            panelGameOver.Visible = true;
+            panelGameOver.BringToFront();
+        }
+
+        private void btnVoltarDerrota_Click_1(object sender, EventArgs e)
+        {
+            alunoAtual = null;
+            chefeAtual = null;
+            perguntasExame = null;
+
+            panelGameOver.Visible = false;
+            panelMenu.Visible = true;
         }
         // ====================== SALA COORDENACAO ======================
 
@@ -691,6 +726,104 @@ namespace CampusQuest.WinForms
         {
             panelHall.Visible = true;
             panelCoordenacao.Visible = false;
+        }
+
+        private void btnUsarItemExame_Click(object sender, EventArgs e)
+        {
+            panelUsarItens.Visible = true;
+            panelUsarItens.BringToFront();
+
+            MostrarItensInventario();
+        }
+
+        private void MostrarItensInventario()
+        {
+            var itens = alunoAtual.Inventario.ListarItens();
+
+            Button[] botoes =
+            {
+        btnItem1,
+        btnItem2,
+        btnItem3,
+        btnItem4,
+        btnItem5,
+        btnItem6
+    };
+
+            for (int i = 0; i < botoes.Length; i++)
+            {
+                if (i < itens.Count)
+                {
+                    botoes[i].Visible = true;
+
+                    CampusQuest.Itens.Item item =
+                        (CampusQuest.Itens.Item)itens[i];
+
+                    botoes[i].Text = item.Nome;
+                    botoes[i].Tag = item;
+                }
+                else
+                {
+                    botoes[i].Visible = false;
+                }
+            }
+        }
+
+        private void btnItem_Click(object sender, EventArgs e)
+        {
+            Button botao = (Button)sender;
+
+            CampusQuest.Itens.Item item =
+                (CampusQuest.Itens.Item)botao.Tag;
+
+            if (item == null)
+                return;
+
+            item.Usar(alunoAtual);
+
+            alunoAtual.Inventario.Remover(item);
+
+            AtualizarStatusExame();
+
+            rtbExame.AppendText($"\n\nVocê usou: {item.Nome}\n");
+
+            if (item is CampusQuest.Itens.Cafe)
+            {
+                rtbExame.AppendText("Você recuperou 25 pontos de vida.\n");
+            }
+            else if (item is CampusQuest.Itens.Cola)
+            {
+                rtbExame.AppendText("Você usou a Cola! Duas alternativas incorretas foram eliminadas.\n");
+
+                AtivarCola();
+            }
+            else if (item is CampusQuest.Itens.Caderno)
+            {
+                rtbExame.AppendText("Você recebeu um bônus de conhecimento para este exame.\n");
+            }
+            else if (item is CampusQuest.Itens.LivroTecnico)
+            {
+                rtbExame.AppendText("Você estudou com um Livro Técnico.\n");
+            }
+
+            panelUsarItens.Visible = false;
+        }
+
+        private void AtivarCola()
+        {
+            Pergunta pergunta = perguntasExame[perguntaExameAtual];
+
+            int corretas = pergunta.IndiceCorreto;
+
+            List<Button> erradas = new();
+
+            if (corretas != 0) erradas.Add(btnExamA);
+            if (corretas != 1) erradas.Add(btnExamB);
+            if (corretas != 2) erradas.Add(btnExamC);
+            if (corretas != 3) erradas.Add(btnExamD);
+
+            erradas[0].Visible = false;
+            erradas[1].Visible = false;
         }
 
         // ====================== VER STATUS E INVENTARIO ======================
@@ -841,6 +974,9 @@ namespace CampusQuest.WinForms
 
         private void opc6_Click(object sender, EventArgs e)
         {
+            MessageBox.Show(
+            "Itens só podem ser usados durante o exame.");
+
             if (alunoAtual == null) return;
 
             rtbMensagens.Clear();
